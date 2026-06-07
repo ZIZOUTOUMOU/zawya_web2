@@ -1,0 +1,219 @@
+/* frontend-react/src/pages/library/BookDetail.module.css */
+
+.backBar {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.backLink {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 150ms;
+}
+.backLink:hover { color: var(--color-accent-dark); }
+
+/* ─── Detail layout ─── */
+.detail {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+  padding: 2rem 0 3rem;
+  align-items: start;
+  animation: fadeUp 400ms ease both;
+}
+
+/* ─── Cover ─── */
+.coverWrap {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  aspect-ratio: 2/3;
+  background: var(--bg-elevated-2);
+  box-shadow: var(--shadow-lg);
+  flex-shrink: 0;
+}
+
+.coverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coverFallback {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-accent-light);
+  font-family: var(--font-display-arabic);
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* ─── Info column ─── */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-family: var(--font-display-arabic);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  color: var(--text);
+  margin: 0.25rem 0;
+  line-height: 1.2;
+}
+
+.by {
+  color: var(--text-soft);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.desc {
+  color: var(--text-soft);
+  line-height: 1.8;
+  font-size: 1rem;
+  max-width: 68ch;
+  margin: 0.5rem 0;
+}
+
+/* ─── Meta grid ─── */
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin: 1rem 0;
+}
+
+/* ─── Actions ─── */
+.actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+/* ─── Preview section ─── */
+.previewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.previewCard {
+  margin: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 200ms, box-shadow 200ms;
+}
+
+.previewCard:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.previewFrame {
+  aspect-ratio: 2/3;
+  background: var(--bg-elevated-2);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewFrame img { width: 100%; height: 100%; object-fit: contain; }
+
+/* ─── Lightbox ─── */
+.lbContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+.lbStage {
+  position: relative;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  max-height: 88vh;
+}
+
+.lbStage img {
+  max-width: min(900px, 80vw);
+  max-height: 88vh;
+  display: block;
+  object-fit: contain;
+}
+
+.lbWatermark {
+  position: absolute;
+  bottom: 8px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.lbNav {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  font-size: 1.8rem;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 150ms;
+}
+
+.lbNav:hover { background: var(--color-accent); border-color: var(--color-accent); }
+
+.lbLabel {
+  position: absolute;
+  bottom: -2.5rem;
+  left: 50%; transform: translateX(-50%);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+/* ─── PDF modal ─── */
+.pdfModal {
+  position: relative;
+  z-index: 1;
+  background: #1a1a1a;
+  border-radius: var(--radius-md);
+  width: min(95vw, 1200px);
+  height: 90vh;
+  overflow: hidden;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .detail {
+    grid-template-columns: 1fr;
+  }
+  .coverWrap { max-width: 260px; margin: 0 auto; }
+  .previewGrid { grid-template-columns: 1fr; }
+  .metaGrid { grid-template-columns: 1fr; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

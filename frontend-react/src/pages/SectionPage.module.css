@@ -1,0 +1,578 @@
+/* frontend-react/src/pages/SectionPage.module.css
+   Shared styles for all inner section pages.
+   Each page imports this alongside its own module if needed.
+*/
+
+/* ─── Intro layout ─── */
+.content {
+  padding-bottom: 4rem;
+}
+
+.introGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.introText h2 { margin-bottom: 1.5rem; }
+.introText p  { font-size: 1.05rem; line-height: 1.9; }
+
+.introImage {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.introImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+}
+
+/* ─── Values grid ─── */
+.valuesSection { margin: 2rem 0; }
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.valueCard {
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.valueIcon  { font-size: 2rem; }
+.valueTitle {
+  font-family: var(--font-display-arabic);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+.valueText  {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ─── Timeline ─── */
+.timeline { margin: 2rem 0; }
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.timelineList::before {
+  content: '';
+  position: absolute;
+  right: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--color-accent), transparent);
+}
+
+.timelineItem {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding-bottom: 2rem;
+  position: relative;
+}
+
+.timelineMarker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+  border: 3px solid var(--bg-elevated);
+  box-shadow: 0 0 0 2px var(--color-accent);
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+.timelineBody {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+
+.timelineYear {
+  display: block;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+}
+
+.timelineText {
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* ─── Gallery ─── */
+.gallery { margin-top: 3rem; }
+.galleryTitle {
+  font-family: var(--font-display-arabic);
+  font-size: 1.3rem;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.galleryGrid img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  transition: transform 200ms, box-shadow 200ms;
+  cursor: zoom-in;
+}
+.galleryGrid img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ─── Feature list ─── */
+.featureList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.featureIcon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.featureBody h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.25rem;
+}
+
+.featureBody p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ─── Info card ─── */
+.infoCard {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: 2rem 2.5rem;
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.infoCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(201,150,60,0.06) 20px, rgba(201,150,60,0.06) 21px),
+    repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(201,150,60,0.06) 20px, rgba(201,150,60,0.06) 21px);
+}
+
+.infoCard h3 {
+  color: var(--color-accent-light);
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.infoCard p {
+  color: rgba(255,255,255,0.85);
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+}
+
+/* ─── Contact form ─── */
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contactInfoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.contactInfoIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.contactInfoBody h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.25rem;
+}
+
+.contactInfoBody p,
+.contactInfoBody a {
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  margin: 0;
+  text-decoration: none;
+}
+
+.contactInfoBody a:hover { color: var(--color-accent); }
+
+.contactForm {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+}
+
+.contactForm h3 {
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formSuccess {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-primary);
+}
+
+.formSuccess span {
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* ─── Manuscript grid ─── */
+.manuscriptGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.manuscriptCard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 200ms, box-shadow 200ms;
+}
+
+.manuscriptCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.manuscriptThumb {
+  aspect-ratio: 3/4;
+  background: linear-gradient(135deg, #8B4513, #C09060);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  overflow: hidden;
+}
+
+.manuscriptThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.manuscriptMeta {
+  padding: 1rem;
+}
+
+.manuscriptTitle {
+  font-family: var(--font-display-arabic);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.manuscriptDate {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ─── Workshop cards ─── */
+.workshopGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.workshopCard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 200ms, box-shadow 200ms;
+}
+
+.workshopCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.workshopImg {
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #9B2335, #D4556A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  overflow: hidden;
+}
+
+.workshopImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.workshopBody {
+  padding: 1.25rem;
+}
+
+.workshopTitle {
+  font-family: var(--font-display-arabic);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.workshopDesc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.workshopMeta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Activity cards ─── */
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.activityCard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  transition: transform 200ms, box-shadow 200ms;
+}
+
+.activityCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.activityImg {
+  background: linear-gradient(135deg, #5E2A84, #8B50B0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.activityImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.activityBody {
+  padding: 1.25rem;
+}
+
+.activityDate {
+  font-size: 0.78rem;
+  color: var(--color-accent-dark);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.activityTitle {
+  font-family: var(--font-display-arabic);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.activityDesc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─── Team grid ─── */
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.teamCard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform 200ms;
+}
+
+.teamCard:hover { transform: translateY(-3px); }
+
+.teamAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.teamAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.teamName {
+  font-family: var(--font-display-arabic);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.teamRole {
+  font-size: 0.82rem;
+  color: var(--color-accent-dark);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .valuesGrid    { grid-template-columns: repeat(2, 1fr); }
+  .teamGrid      { grid-template-columns: repeat(2, 1fr); }
+  .manuscriptGrid { grid-template-columns: repeat(2, 1fr); }
+  .workshopGrid  { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .introGrid     { grid-template-columns: 1fr; }
+  .featureList   { grid-template-columns: 1fr; }
+  .contactGrid   { grid-template-columns: 1fr; }
+  .activityGrid  { grid-template-columns: 1fr; }
+  .activityCard  { grid-template-columns: 1fr; }
+  .activityImg   { min-height: 180px; }
+  .galleryGrid   { grid-template-columns: repeat(2, 1fr); }
+  .formRow       { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .valuesGrid    { grid-template-columns: 1fr; }
+  .teamGrid      { grid-template-columns: repeat(2, 1fr); }
+  .manuscriptGrid { grid-template-columns: 1fr; }
+  .workshopGrid  { grid-template-columns: 1fr; }
+  .galleryGrid   { grid-template-columns: 1fr; }
+}
