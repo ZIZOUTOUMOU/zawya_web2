@@ -1,0 +1,100 @@
+/* frontend-react/src/components/ui/SectionHero.module.css */
+
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--text-inverse);
+  padding: calc(var(--header-height) + var(--space-3xl)) 0 var(--space-3xl);
+  overflow: hidden;
+}
+
+/* Geometric background pattern */
+.hero.pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 30px,
+      rgba(201, 150, 60, 0.07) 30px,
+      rgba(201, 150, 60, 0.07) 31px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 30px,
+      rgba(201, 150, 60, 0.07) 30px,
+      rgba(201, 150, 60, 0.07) 31px
+    );
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  animation: fadeUp 500ms ease both;
+}
+
+.badge {
+  background: rgba(201, 150, 60, 0.2);
+  color: var(--color-accent-light);
+  border-color: rgba(201, 150, 60, 0.35);
+  font-size: 0.8rem;
+}
+
+.title {
+  font-family: var(--font-display-arabic);
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  color: #fff;
+  margin-bottom: 0;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--color-accent-light);
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.8);
+  max-width: 60ch;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: var(--space-md);
+}
+
+/* Bottom wave */
+.wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0; right: 0;
+  height: 60px;
+  line-height: 0;
+}
+
+.wave svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
