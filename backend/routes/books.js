@@ -31,7 +31,7 @@ const SORT_MAP = {
 router.get('/books', (req, res) => {
   const {
     search = '', category = '', year_from = '', year_to = '',
-    language = '', sort = 'newest', page = '1', limit = '20',
+    language = '', author = '', sort = 'newest', page = '1', limit = '20',
   } = req.query;
 
   const params = [];
@@ -41,6 +41,10 @@ router.get('/books', (req, res) => {
     where.push('(b.title LIKE ? OR b.author LIKE ? OR b.isbn10 LIKE ? OR b.isbn13 LIKE ? OR b.description LIKE ?)');
     const q = `%${search.trim()}%`;
     params.push(q, q, q, q, q);
+  }
+  if (author.trim()) {
+    where.push('b.author LIKE ?');
+    params.push(`%${author.trim()}%`);
   }
   if (category.trim()) {
     const cats = category.split(',').map(c => c.trim()).filter(Boolean);
@@ -96,6 +100,40 @@ router.get('/books/recent', (req, res) => {
   res.json(ok(rows));
 });
 
+// ─── GET /api/books/random ───────────────────────────────────────
+router.get('/books/random', (req, res) => {
+  const row = db.prepare(`
+    SELECT b.id, b.title, b.author, b.cover_image
+    FROM books b
+    WHERE b.is_visible = 1
+    ORDER BY RANDOM() LIMIT 1
+  `).get();
+  if (!row) return res.json(err('No books found', 404));
+  res.json(ok(row));
+});
+
+// ─── GET /api/books/:id/related ──────────────────────────────────
+router.get('/books/:id/related', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json(err('Invalid id'));
+  try {
+    const rows = db.prepare(`
+      SELECT b.* FROM books b
+      WHERE b.is_visible = 1
+        AND b.id != ?
+        AND b.category IS NOT NULL
+        AND b.category != ''
+        AND b.category = (SELECT category FROM books WHERE id = ?)
+      ORDER BY RANDOM()
+      LIMIT 6
+    `).all(id, id);
+    res.json(ok(rows));
+  } catch (e) {
+    console.error('/api/books/:id/related error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
+});
+
 // ─── GET /api/books/:id ───────────────────────────────────────────
 router.get('/books/:id', (req, res) => {
   const id = parseInt(req.params.id, 10);
@@ -125,13 +163,13 @@ router.get('/search', (req, res) => {
   if (!q || q.length < 2) return res.json(ok([]));
   const like = `%${q}%`;
   const rows = db.prepare(`
-    SELECT id, title, author, cover_image, category
-    FROM books
+    SELECT b.id, b.title, b.author, b.cover_image
+    FROM books b
     WHERE is_visible = 1 AND (title LIKE ? OR author LIKE ? OR isbn13 LIKE ?)
     ORDER BY
       CASE WHEN title LIKE ? THEN 0 ELSE 1 END,
       title COLLATE NOCASE ASC
-    LIMIT 8
+    LIMIT 10
   `).all(like, like, like, like);
   res.json(ok(rows));
 });

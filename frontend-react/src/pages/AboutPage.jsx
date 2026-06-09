@@ -1,48 +1,36 @@
-// frontend-react/src/pages/AboutPage.jsx
-// ═══════════════════════════════════════════════════════
-// التعريف بالزاوية — About the Zawiya
-// Drop in your own text and images using the placeholder spots.
-// ═══════════════════════════════════════════════════════
-
+import { useT } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
 import styles from './SectionPage.module.css'
 
 export default function AboutPage() {
+  const t = useT()
+
   return (
-    <div dir="rtl">
+    <div>
       <SectionHero
-        title="التعريف بالزاوية"
-        subtitle="إرث علمي وروحاني عريق"
-        description="تأسست الزاوية لتكون منارةً للعلم والثقافة والتراث الإسلامي في المنطقة."
-        badge="نبذة تاريخية"
+        title={t('site.name')}
+        subtitle={t('about.heroSubtitle')}
+        description={t('about.heroDesc')}
+        badge={t('about.heroBadge')}
       />
 
       <section className={`section ${styles.content}`}>
         <div className="container">
 
-          {/* Intro block */}
           <div className={styles.introGrid}>
             <div className={styles.introText}>
-              <h2 className="section-title">من نحن</h2>
-              {/* ↓↓↓ REPLACE WITH YOUR ARABIC TEXT ↓↓↓ */}
-              <p>
-                أضف هنا نصاً تعريفياً بالزاوية — تاريخها، تأسيسها، وأهدافها.
-                يمكنك الكتابة بالعربية الفصحى أو الدارجة حسب ما يناسبك.
-              </p>
-              <p>
-                يمكن أن تتضمن هذه الفقرة معلومات عن المؤسس والموقع الجغرافي
-                والتطور التاريخي عبر الأجيال.
-              </p>
-              {/* ↑↑↑ END PLACEHOLDER TEXT ↑↑↑ */}
+              <h2 className="section-title">{t('about.headingWho')}</h2>
+              <p>{t('about.intro1')}</p>
+              <p>{t('about.intro2')}</p>
+              <p>{t('about.intro3')}</p>
             </div>
 
-            {/* Image placeholder — replace src with your photo */}
             <div className={styles.introImage}>
               <div className="img-placeholder" style={{ minHeight: 320 }}>
-                {/* <img src="/images/zawiya-exterior.jpg" alt="مبنى الزاوية" /> */}
+                {/* <img src="/images/zawiya-exterior.jpg" alt={t('about.imgCaption')} /> */}
                 <span style={{ fontSize: '3rem' }}>🕌</span>
-                <span>صورة الزاوية من الخارج</span>
-                <small style={{ opacity: 0.6 }}>ضع صورتك هنا</small>
+                <span>{t('about.imgCaption')}</span>
+                <small style={{ opacity: 0.6 }}>{t('about.imgHint')}</small>
               </div>
             </div>
           </div>
@@ -51,14 +39,13 @@ export default function AboutPage() {
             <span>✦</span>
           </div>
 
-          {/* Values grid */}
           <div className={styles.valuesSection}>
-            <h2 className="section-title centered" style={{ textAlign: 'center' }}>قيمنا ومبادئنا</h2>
+            <h2 className="section-title centered" style={{ textAlign: 'center' }}>{t('about.valuesHeading')}</h2>
             <div className={styles.valuesGrid}>
-              <ValueCard icon="📖" title="العلم والمعرفة"    text="نؤمن بأن طلب العلم فريضة ورسالة مستمرة." />
-              <ValueCard icon="🤲" title="الروحانية والتقوى" text="نسعى إلى تقوية الرابط الروحي بالله تعالى." />
-              <ValueCard icon="🌱" title="خدمة المجتمع"      text="نهدف إلى بناء مجتمع متماسك ومتعلم." />
-              <ValueCard icon="📜" title="صون التراث"        text="نحافظ على الموروث الحضاري والعلمي الإسلامي." />
+              <ValueCard icon="📖" title={t('about.value1Title')} text={t('about.value1Text')} />
+              <ValueCard icon="🤲" title={t('about.value2Title')} text={t('about.value2Text')} />
+              <ValueCard icon="🌱" title={t('about.value3Title')} text={t('about.value3Text')} />
+              <ValueCard icon="📜" title={t('about.value4Title')} text={t('about.value4Text')} />
             </div>
           </div>
 
@@ -66,25 +53,23 @@ export default function AboutPage() {
             <span>✦</span>
           </div>
 
-          {/* History timeline */}
           <div className={styles.timeline}>
-            <h2 className="section-title centered" style={{ textAlign: 'center' }}>لمحة تاريخية</h2>
+            <h2 className="section-title centered" style={{ textAlign: 'center' }}>{t('about.historyHeading')}</h2>
             <div className={styles.timelineList}>
-              <TimelineItem year="التأسيس" text="أضف هنا سنة التأسيس والظروف المحيطة بها." />
-              <TimelineItem year="التطور"  text="أضف هنا مراحل نمو الزاوية وتوسعها عبر السنين." />
-              <TimelineItem year="الحاضر"  text="أضف هنا الوضع الراهن والمشاريع الجارية." />
+              <TimelineItem year={t('about.timeline1Year')} text={t('about.timeline1Text')} />
+              <TimelineItem year={t('about.timeline2Year')} text={t('about.timeline2Text')} />
+              <TimelineItem year={t('about.timeline3Year')} text={t('about.timeline3Text')} />
             </div>
           </div>
 
-          {/* Gallery placeholder */}
           <div className={styles.gallery}>
-            <h3 className={styles.galleryTitle}>من صور الزاوية</h3>
+            <h3 className={styles.galleryTitle}>{t('about.galleryHeading')}</h3>
             <div className={styles.galleryGrid}>
               {[1,2,3,4,5,6].map(i => (
                 <div key={i} className="img-placeholder" style={{ minHeight: 160 }}>
-                  {/* Replace with: <img src={`/images/gallery-${i}.jpg`} alt={`صورة ${i}`} /> */}
+                  {/* Replace with: <img src={`/images/gallery-${i}.jpg`} alt={t('about.galleryAlt', { i })} /> */}
                   <span style={{ fontSize: '1.5rem' }}>🖼️</span>
-                  <span style={{ fontSize: '0.8rem' }}>صورة {i}</span>
+                  <span style={{ fontSize: '0.8rem' }}>{t('about.galleryAlt', { i })}</span>
                 </div>
               ))}
             </div>

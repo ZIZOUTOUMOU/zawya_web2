@@ -1,114 +1,30 @@
-// frontend-react/src/pages/HomePage.jsx
-// ═══════════════════════════════════════════════════════
-// Main interactive homepage — the hub for all sections.
-// Fetches live stats from the backend and displays
-// section cards with Arabic content.
-// ═══════════════════════════════════════════════════════
-
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getStats, getRecentBooks, getFeaturedBooks, assetUrl } from '../services/api'
+import { getStats, getRecentBooks, assetUrl } from '../services/api'
+import { useT } from '../context/LanguageContext'
 import styles from './HomePage.module.css'
 
-// ─── Section cards data ────────────────────────────────────────────
-const SECTIONS = [
-  {
-    id: 'about',
-    path: '/about',
-    title: 'التعريف بالزاوية',
-    subtitle: 'نبذة تاريخية وتعريفية',
-    description: 'تعرّف على تاريخ الزاوية وإرثها العلمي والروحاني العريق في المنطقة.',
-    icon: '🕌',
-    color: '#1B3A2D',
-  },
-  {
-    id: 'quran',
-    path: '/quran-school',
-    title: 'المدرسة القرآنية',
-    subtitle: 'تعليم كتاب الله',
-    description: 'برامج تحفيظ القرآن الكريم وتعليم التجويد لجميع الأعمار.',
-    icon: '📖',
-    color: '#2D6A4F',
-  },
-  {
-    id: 'manuscripts',
-    path: '/manuscripts',
-    title: 'المخطوطات',
-    subtitle: 'كنوز الإرث الإسلامي',
-    description: 'مجموعة نادرة من المخطوطات العلمية والأدبية والدينية القيّمة.',
-    icon: '📜',
-    color: '#8B4513',
-  },
-  {
-    id: 'sewing',
-    path: '/sewing',
-    title: 'قسم الخياطة',
-    subtitle: 'الحرف والمهارات اليدوية',
-    description: 'ورشات تعليمية في الخياطة والتطريز والفنون النسيجية التقليدية.',
-    icon: '🪡',
-    color: '#9B2335',
-  },
-  {
-    id: 'activities',
-    path: '/activities',
-    title: 'أنشطة مختلفة',
-    subtitle: 'فعاليات وبرامج متنوعة',
-    description: 'برامج ثقافية وترفيهية وتعليمية للمجتمع طوال العام.',
-    icon: '🎨',
-    color: '#5E2A84',
-  },
-  {
-    id: 'association',
-    path: '/association',
-    title: 'الجمعية',
-    subtitle: 'منظمتنا وهيكلنا',
-    description: 'تعرّف على جمعية الزاوية وأهدافها ومشاريعها المجتمعية.',
-    icon: '🤝',
-    color: '#1B3A2D',
-  },
-  {
-    id: 'library',
-    path: '/library',
-    title: 'المكتبة الرقمية',
-    subtitle: 'آلاف الكتب في متناولك',
-    description: 'مكتبة رقمية تضم كتباً في المجال العام مع معاينة الصفحات.',
-    icon: '📚',
-    color: '#1a4a6b',
-  },
-  {
-    id: 'contact',
-    path: '/contact',
-    title: 'التواصل معنا',
-    subtitle: 'نحن هنا للمساعدة',
-    description: 'تواصل معنا لأي استفسار أو للانضمام إلى أنشطة الزاوية.',
-    icon: '✉️',
-    color: '#C9963C',
-  },
-]
-
-// ─── Component ─────────────────────────────────────────────────────
 export default function HomePage() {
-  const [stats,     setStats]     = useState(null)
+  const t = useT()
+  const [stats, setStats] = useState(null)
   const [recentBooks, setRecentBooks] = useState([])
-  const [loading,   setLoading]   = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch stats and recent books in parallel
     Promise.all([getStats(), getRecentBooks()])
       .then(([statsRes, booksRes]) => {
         if (statsRes.success) setStats(statsRes.data)
-        if (booksRes.success)  setRecentBooks(booksRes.data.slice(0, 4))
+        if (booksRes.success) setRecentBooks(booksRes.data.slice(0, 4))
       })
       .finally(() => setLoading(false))
   }, [])
 
   return (
-    <div className={styles.page} dir="rtl">
+    <div className={styles.page}>
 
       {/* ══ HERO ══════════════════════════════════════════════════ */}
       <section className={styles.hero}>
         <div className={styles.heroBg} aria-hidden="true">
-          {/* Geometric SVG pattern */}
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="geo" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
@@ -122,40 +38,33 @@ export default function HomePage() {
 
         <div className={`container ${styles.heroInner}`}>
           <div className={styles.heroText}>
-            <span className={styles.eyebrow}>مرحباً بكم في</span>
+            <span className={styles.eyebrow}>{t('home.eyebrow')}</span>
             <h1 className={styles.heroTitle}>
-              الزاوية
-              <span className={styles.heroTitleAccent}>المركز الثقافي والتعليمي</span>
+              {t('site.name')}
+              <span className={styles.heroTitleAccent}>{t('home.heroAccent')}</span>
             </h1>
-            <p className={styles.heroLede}>
-              مساحة للعلم والثقافة والتراث الإسلامي — من تحفيظ القرآن الكريم
-              إلى المخطوطات النادرة والأنشطة المجتمعية المتنوعة.
-            </p>
+            <p className={styles.heroLede}>{t('home.heroLede')}</p>
             <div className={styles.heroCta}>
               <Link to="/about" className="btn btn-accent btn-lg">
-                تعرّف علينا
+                {t('home.ctaAbout')}
               </Link>
               <Link to="/library" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff' }}>
-                المكتبة الرقمية
+                {t('home.ctaLibrary')}
               </Link>
             </div>
           </div>
 
-          {/* Hero visual — image placeholder */}
           <div className={styles.heroArt}>
             <div className={styles.imgPlaceholder}>
-              {/* Replace the src below with your actual mosque/zawiya photo */}
-              {/* <img src="/images/zawiya-hero.jpg" alt="الزاوية" className={styles.heroImg} /> */}
               <div className={styles.placeholderBox}>
                 <span className={styles.placeholderIcon}>🕌</span>
-                <span className={styles.placeholderText}>صورة الزاوية</span>
-                <span className={styles.placeholderHint}>ضع صورتك هنا</span>
+                <span className={styles.placeholderText}>{t('home.placeholderImg')}</span>
+                <span className={styles.placeholderHint}>{t('home.placeholderHint')}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Wave */}
         <div className={styles.wave} aria-hidden="true">
           <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="var(--bg)">
             <path d="M0,0 C480,80 960,80 1440,0 L1440,80 L0,80 Z"/>
@@ -168,10 +77,10 @@ export default function HomePage() {
         <section className={`section ${styles.statsSection}`}>
           <div className="container">
             <div className={styles.statsGrid}>
-              <StatCard number={stats.totalBooks?.toLocaleString('ar-EG')}  label="كتاب في المكتبة"    icon="📚" />
-              <StatCard number={stats.totalCategories?.toLocaleString('ar-EG')} label="تصنيف معرفي"   icon="🗂️" />
-              <StatCard number={stats.totalAuthors?.toLocaleString('ar-EG')} label="مؤلف ومفكر"        icon="✍️" />
-              <StatCard number="٢٥+"  label="نشاط سنوياً"                                              icon="🎯" />
+              <StatCard number={stats.totalBooks?.toLocaleString()}      label={t('home.statBooks')}      icon="📚" />
+              <StatCard number={stats.totalCategories?.toLocaleString()} label={t('home.statCategories')} icon="🗂️" />
+              <StatCard number={stats.totalAuthors?.toLocaleString()}    label={t('home.statAuthors')}    icon="✍️" />
+              <StatCard number={t('home.statActivitiesNum')}             label={t('home.statActivities')} icon="🎯" />
             </div>
           </div>
         </section>
@@ -181,18 +90,18 @@ export default function HomePage() {
       <section className={`section ${styles.sectionsSection}`}>
         <div className="container">
           <div className={styles.sectionHead}>
-            <h2 className={`section-title ${styles.sectionTitle}`}>
-              أقسام الزاوية
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              اكتشف كل ما تقدمه الزاوية من خدمات وأنشطة
-            </p>
+            <h2 className={`section-title ${styles.sectionTitle}`}>{t('home.sectionsTitle')}</h2>
+            <p className={styles.sectionSubtitle}>{t('home.sectionsSubtitle')}</p>
           </div>
-
           <div className={styles.sectionsGrid}>
-            {SECTIONS.map((sec, i) => (
-              <SectionCard key={sec.id} section={sec} delay={i * 60} />
-            ))}
+            <SectionCard icon="🕌" title={t('home.sectionAbout')}       subtitle={t('home.sectionAboutSub')}       description={t('home.sectionAboutDesc')}       linkTo="/about"        color="#1B3A2D" delay={0}   />
+            <SectionCard icon="📖" title={t('home.sectionQuran')}       subtitle={t('home.sectionQuranSub')}       description={t('home.sectionQuranDesc')}       linkTo="/quran-school" color="#2D6A4F" delay={60}  />
+            <SectionCard icon="📜" title={t('home.sectionMss')}         subtitle={t('home.sectionMssSub')}         description={t('home.sectionMssDesc')}         linkTo="/manuscripts"  color="#8B4513" delay={120} />
+            <SectionCard icon="🪡" title={t('home.sectionSewing')}      subtitle={t('home.sectionSewingSub')}      description={t('home.sectionSewingDesc')}      linkTo="/sewing"       color="#9B2335" delay={180} />
+            <SectionCard icon="🎨" title={t('home.sectionActivities')}  subtitle={t('home.sectionActivitiesSub')}  description={t('home.sectionActivitiesDesc')}  linkTo="/activities"   color="#5E2A84" delay={240} />
+            <SectionCard icon="🤝" title={t('home.sectionAssociation')} subtitle={t('home.sectionAssociationSub')} description={t('home.sectionAssociationDesc')} linkTo="/association"  color="#1B3A2D" delay={300} />
+            <SectionCard icon="📚" title={t('home.sectionLibrary')}     subtitle={t('home.sectionLibrarySub')}     description={t('home.sectionLibraryDesc')}     linkTo="/library"      color="#1a4a6b" delay={360} />
+            <SectionCard icon="✉️" title={t('home.sectionContact')}     subtitle={t('home.sectionContactSub')}     description={t('home.sectionContactDesc')}     linkTo="/contact"      color="#C9963C" delay={420} />
           </div>
         </div>
       </section>
@@ -200,7 +109,7 @@ export default function HomePage() {
       {/* ══ ORNAMENTAL DIVIDER ════════════════════════════════════ */}
       <div className="ornament-divider container">
         <span>✦</span>
-        <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>من كنوز المكتبة الرقمية</span>
+        <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{t('home.ornamentText')}</span>
         <span>✦</span>
       </div>
 
@@ -208,10 +117,8 @@ export default function HomePage() {
       <section className={`section ${styles.booksSection}`}>
         <div className="container">
           <div className={styles.sectionHead}>
-            <h2 className="section-title">آخر إضافات المكتبة</h2>
-            <Link to="/library" className={styles.viewAll}>
-              عرض الكل ←
-            </Link>
+            <h2 className="section-title">{t('home.recentTitle')}</h2>
+            <Link to="/library" className={styles.viewAll}>{t('home.viewAll')}</Link>
           </div>
 
           {loading ? (
@@ -223,12 +130,12 @@ export default function HomePage() {
           ) : recentBooks.length > 0 ? (
             <div className={styles.booksGrid}>
               {recentBooks.map((book, i) => (
-                <BookCard key={book.id} book={book} delay={i * 80} />
+                <BookCard key={book.id} book={book} delay={i * 80} t={t} />
               ))}
             </div>
           ) : (
             <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>
-              لا توجد كتب حتى الآن. أضف كتباً من لوحة التحكم.
+              {t('home.emptyBooks')}
             </p>
           )}
         </div>
@@ -238,14 +145,12 @@ export default function HomePage() {
       <section className={styles.ctaBanner}>
         <div className="container">
           <div className={styles.ctaContent}>
-            <h2 className={styles.ctaTitle}>انضم إلى عائلة الزاوية</h2>
-            <p className={styles.ctaDesc}>
-              نرحب بجميع الراغبين في التعلم والمشاركة في أنشطتنا الثقافية والتعليمية.
-            </p>
+            <h2 className={styles.ctaTitle}>{t('home.ctaBannerHeading')}</h2>
+            <p className={styles.ctaDesc}>{t('home.ctaBannerDesc')}</p>
             <div className={styles.ctaActions}>
-              <Link to="/contact" className="btn btn-accent btn-lg">تواصل معنا</Link>
+              <Link to="/contact" className="btn btn-accent btn-lg">{t('home.ctaBannerContact')}</Link>
               <Link to="/association" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff' }}>
-                تعرّف على الجمعية
+                {t('home.ctaBannerAbout')}
               </Link>
             </div>
           </div>
@@ -268,32 +173,32 @@ function StatCard({ number, label, icon }) {
   )
 }
 
-function SectionCard({ section, delay }) {
+function SectionCard({ icon, title, subtitle, description, linkTo, color, delay }) {
   return (
     <Link
-      to={section.path}
+      to={linkTo}
       className={`card ${styles.sectionCard} fade-up`}
       style={{ '--delay': `${delay}ms`, animationDelay: `${delay}ms` }}
     >
       <div
         className={styles.sectionCardAccent}
-        style={{ background: section.color }}
+        style={{ background: color }}
         aria-hidden="true"
       />
       <div className={styles.sectionCardBody}>
-        <span className={styles.sectionIcon}>{section.icon}</span>
+        <span className={styles.sectionIcon}>{icon}</span>
         <div>
-          <h3 className={styles.sectionCardTitle}>{section.title}</h3>
-          <p className={styles.sectionCardSub}>{section.subtitle}</p>
+          <h3 className={styles.sectionCardTitle}>{title}</h3>
+          <p className={styles.sectionCardSub}>{subtitle}</p>
         </div>
       </div>
-      <p className={styles.sectionCardDesc}>{section.description}</p>
+      <p className={styles.sectionCardDesc}>{description}</p>
       <span className={styles.sectionCardArrow} aria-hidden="true">←</span>
     </Link>
   )
 }
 
-function BookCard({ book, delay }) {
+function BookCard({ book, delay, t }) {
   const cover = assetUrl(book.cover_image)
 
   return (
@@ -306,7 +211,7 @@ function BookCard({ book, delay }) {
         {cover ? (
           <img
             src={cover}
-            alt={`غلاف ${book.title}`}
+            alt={t('home.coverAlt', { title: book.title })}
             loading="lazy"
             onError={(e) => { e.target.style.display = 'none' }}
           />

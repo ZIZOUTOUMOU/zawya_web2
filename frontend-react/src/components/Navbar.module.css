@@ -92,6 +92,24 @@
   font-weight: 600;
 }
 
+/* Reading list count badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  margin-inline-start: 0.3rem;
+  vertical-align: middle;
+}
+
 /* ─── Actions ─── */
 .actions {
   display: flex;
@@ -123,6 +141,23 @@
 
 .adminBtn {
   display: none; /* Hidden on mobile, shown on desktop */
+}
+
+.langToggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  cursor: pointer;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.langToggle:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 /* ─── Hamburger ─── */

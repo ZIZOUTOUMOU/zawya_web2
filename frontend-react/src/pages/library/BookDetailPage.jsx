@@ -3,8 +3,11 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { getBook, assetUrl } from '../../services/api'
+import { getBook, getRelatedBooks, assetUrl } from '../../services/api'
+import { useT } from '../../context/LanguageContext'
 import PageLoader from '../../components/ui/PageLoader'
+import ErrorBoundary from '../../components/ErrorBoundary'
+import PdfReader from './PdfReader'
 import styles from './BookDetail.module.css'
 
 // ─── Local reading-list (localStorage) ────────────────────────────
@@ -28,6 +31,7 @@ const ReadingList = {
 export default function BookDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const t = useT()
 
   const [book,         setBook]         = useState(null)
   const [loading,      setLoading]      = useState(true)
@@ -45,9 +49,9 @@ export default function BookDetailPage() {
         if (r.success) {
           setBook(r.data)
           setInList(ReadingList.has(r.data.id))
-          document.title = `${r.data.title} — المكتبة الرقمية`
+          document.title = `${r.data.title} — ${t('site.name')}`
         } else {
-          setError(r.error || 'الكتاب غير موجود')
+          setError(r.error || t('bookDetail.notFound'))
         }
       })
       .finally(() => setLoading(false))
@@ -60,8 +64,8 @@ export default function BookDetailPage() {
 
   const share = async () => {
     const data = {
-      title: book.title + ' — المكتبة الرقمية',
-      text: `اكتشف "${book.title}" بقلم ${book.author}`,
+      title: `${book.title} — ${t('site.name')}`,
+      text: `"${book.title}" — ${t('bookDetail.byAuthor')} ${book.author}`,
       url: window.location.href,
     }
     if (navigator.share) {
@@ -76,8 +80,8 @@ export default function BookDetailPage() {
   const openPreview = (startIndex = 0) => {
     if (!book) return
     const pages = []
-    if (book.first_page_img) pages.push({ url: assetUrl(book.first_page_img), label: 'الصفحة الأولى' })
-    if (book.last_page_img)  pages.push({ url: assetUrl(book.last_page_img),  label: 'الصفحة الأخيرة' })
+    if (book.first_page_img) pages.push({ url: assetUrl(book.first_page_img), label: t('bookDetail.firstPage') })
+    if (book.last_page_img)  pages.push({ url: assetUrl(book.last_page_img),  label: t('bookDetail.lastPage') })
     if (pages.length) setLightbox({ pages, index: startIndex })
   }
 
@@ -104,7 +108,7 @@ export default function BookDetailPage() {
   if (error)   return (
     <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
       <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>{error}</p>
-      <button className="btn btn-primary" onClick={() => navigate('/library')}>← العودة للمكتبة</button>
+      <button className="btn btn-primary" onClick={() => navigate('/library')}>{t('bookDetail.backToLibrary')}</button>
     </div>
   )
   if (!book) return null
@@ -118,16 +122,17 @@ export default function BookDetailPage() {
   const gutLink    = book.gutenberg_id    ? `https://www.gutenberg.org/ebooks/${book.gutenberg_id}`   : null
 
   return (
-    <div dir="rtl">
+    <ErrorBoundary>
+    <div>
       <div className={`container ${styles.backBar}`}>
-        <Link to="/library" className={styles.backLink}>← العودة إلى المكتبة</Link>
+        <Link to="/library" className={styles.backLink}>{t('bookDetail.backToLibrary')}</Link>
       </div>
 
       <div className={`container ${styles.detail}`}>
         {/* ── Cover ── */}
         <div className={styles.coverWrap}>
           {cover ? (
-            <img src={cover} alt={`غلاف ${book.title}`} className={styles.coverImg} />
+            <img src={cover} alt={`${book.title} — ${t('bookDetail.previewTitle')}`} className={styles.coverImg} />
           ) : (
             <div className={styles.coverFallback}>
               <span>{book.title?.charAt(0) || '📖'}</span>
@@ -140,7 +145,13 @@ export default function BookDetailPage() {
           {book.category && <span className="badge" style={{ marginBottom: '0.5rem' }}>{book.category}</span>}
           <h1 className={styles.title}>{book.title}</h1>
           <p className={styles.by}>
-            بقلم <strong>{book.author}</strong>
+            {t('bookDetail.byAuthor')}{' '}
+            <Link
+              to={`/library?author=${encodeURIComponent(book.author)}`}
+              className={styles.authorLink}
+            >
+              <strong>{book.author}</strong>
+            </Link>
             {book.publication_year && <> · {book.publication_year}</>}
           </p>
 
@@ -161,31 +172,31 @@ export default function BookDetailPage() {
 
           {/* Meta grid */}
           <div className={styles.metaGrid}>
-            <MetaRow label="ISBN-10"     value={book.isbn10       ? <code>{book.isbn10}</code>  : '—'} />
-            <MetaRow label="ISBN-13"     value={book.isbn13       ? <code>{book.isbn13}</code>  : '—'} />
-            <MetaRow label="الصفحات"     value={book.total_pages  || '—'} />
-            <MetaRow label="النشر"       value={book.publication_year || '—'} />
-            <MetaRow label="اللغة"       value={book.language     || '—'} />
-            <MetaRow label="الناشر"      value={book.publisher    || '—'} />
-            <MetaRow label="الترخيص"     value={book.license_type || 'الملكية العامة'} />
-            <MetaRow label="تاريخ الإضافة" value={addedDate      || '—'} />
+            <MetaRow label="ISBN-10"                   value={book.isbn10       ? <code>{book.isbn10}</code>  : '—'} />
+            <MetaRow label="ISBN-13"                   value={book.isbn13       ? <code>{book.isbn13}</code>  : '—'} />
+            <MetaRow label={t('bookDetail.pages')}     value={book.total_pages  || '—'} />
+            <MetaRow label="النشر"                     value={book.publication_year || '—'} />
+            <MetaRow label={t('bookDetail.language')}  value={book.language     || '—'} />
+            <MetaRow label={t('bookDetail.publisher')} value={book.publisher    || '—'} />
+            <MetaRow label={t('bookDetail.license')}   value={book.license_type || t('bookDetail.publicDomain')} />
+            <MetaRow label={t('bookDetail.addedDate')} value={addedDate         || '—'} />
           </div>
 
           {/* Action buttons */}
           <div className={styles.actions}>
             {(book.first_page_img || book.last_page_img) && (
               <button className="btn btn-primary" onClick={() => openPreview(0)}>
-                👁 معاينة الصفحات
+                👁 {t('bookDetail.previewBtn')}
               </button>
             )}
             {book.pdf_file && (
               <button className="btn btn-ghost" onClick={() => setPdfOpen(true)}>
-                📖 قراءة أونلاين
+                📖 {t('bookDetail.readOnline')}
               </button>
             )}
             {book.pdf_file && book.license_type === 'Public Domain' && (
               <a className="btn btn-ghost" href={assetUrl(book.pdf_file)} download>
-                ⬇ تحميل PDF
+                ⬇ {t('bookDetail.downloadPdf')}
               </a>
             )}
             {gutLink && (
@@ -199,13 +210,13 @@ export default function BookDetailPage() {
               </a>
             )}
             <button className="btn btn-ghost" onClick={share}>
-              {copied ? '✅ تم النسخ' : '🔗 مشاركة'}
+              {copied ? `✅ ${t('bookDetail.copied')}` : `🔗 ${t('bookDetail.share')}`}
             </button>
             <button
               className={`btn ${inList ? 'btn-accent' : 'btn-ghost'}`}
               onClick={toggleList}
             >
-              {inList ? '🔖 في قائمة القراءة' : '🔖 أضف لقائمة القراءة'}
+              {inList ? `🔖 ${t('bookDetail.inReadingList')}` : `🔖 ${t('bookDetail.addToList')}`}
             </button>
           </div>
         </div>
@@ -214,28 +225,31 @@ export default function BookDetailPage() {
       {/* ── Page previews section ── */}
       <div className="container" style={{ marginTop: '3rem', marginBottom: '4rem' }}>
         <h2 style={{ fontFamily: 'var(--font-display-arabic)', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
-          معاينة الصفحات
+          {t('bookDetail.previewTitle')}
         </h2>
         <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-          صفحات حقيقية من الكتاب. انقر لتكبير والتنقل بين الصفحات.
+          {t('bookDetail.previewDesc')}
         </p>
         <div className={styles.previewGrid}>
           <PreviewCard
             src={assetUrl(book.first_page_img)}
-            label="الصفحة الأولى"
+            label={t('bookDetail.firstPage')}
             onClick={() => openPreview(0)}
             available={!!book.first_page_img}
             bookTitle={book.title}
           />
           <PreviewCard
             src={assetUrl(book.last_page_img)}
-            label="الصفحة الأخيرة"
+            label={t('bookDetail.lastPage')}
             onClick={() => openPreview(book.first_page_img ? 1 : 0)}
             available={!!book.last_page_img}
             bookTitle={book.title}
           />
         </div>
       </div>
+
+      {/* ── Related books ── */}
+      <RelatedBooks bookId={id} />
 
       {/* ── Lightbox ── */}
       {lightbox && (
@@ -248,7 +262,7 @@ export default function BookDetailPage() {
               <button
                 className={styles.lbNav}
                 onClick={() => setLightbox(lb => ({ ...lb, index: (lb.index - 1 + lb.pages.length) % lb.pages.length }))}
-                aria-label="السابق"
+                aria-label={t('bookDetail.previous')}
               >›</button>
             )}
 
@@ -257,14 +271,14 @@ export default function BookDetailPage() {
                 src={lightbox.pages[lightbox.index].url}
                 alt={lightbox.pages[lightbox.index].label}
               />
-              <div className={styles.lbWatermark}>معاينة فقط — تفضل بزيارة المكتبة للاطلاع الكامل</div>
+              <div className={styles.lbWatermark}>{t('bookDetail.watermark')}</div>
             </div>
 
             {lightbox.pages.length > 1 && (
               <button
                 className={styles.lbNav}
                 onClick={() => setLightbox(lb => ({ ...lb, index: (lb.index + 1) % lb.pages.length }))}
-                aria-label="التالي"
+                aria-label={t('bookDetail.next')}
               >‹</button>
             )}
 
@@ -273,21 +287,10 @@ export default function BookDetailPage() {
         </div>
       )}
 
-      {/* ── PDF modal ── */}
-      {pdfOpen && book.pdf_file && (
-        <div className="lightbox" onClick={() => setPdfOpen(false)}>
-          <div className="lightbox-overlay" />
-          <div className={styles.pdfModal} onClick={e => e.stopPropagation()}>
-            <button className="lightbox-close" onClick={() => setPdfOpen(false)}>×</button>
-            <iframe
-              src={`${assetUrl(book.pdf_file)}#toolbar=1&navpanes=0&zoom=page-fit`}
-              title="قارئ PDF"
-              style={{ width: '100%', height: '100%', border: 0 }}
-            />
-          </div>
-        </div>
-      )}
+      {/* ── PDF reader ── */}
+      {pdfOpen && <PdfReader pdfUrl={assetUrl(book.pdf_file)} onClose={() => setPdfOpen(false)} />}
     </div>
+    </ErrorBoundary>
   )
 }
 
@@ -304,7 +307,57 @@ function MetaRow({ label, value }) {
   )
 }
 
+function RelatedBooks({ bookId }) {
+  const [books,   setBooks]   = useState([])
+  const [loading, setLoading] = useState(true)
+  const t = useT()
+
+  useEffect(() => {
+    if (!bookId) return
+    setLoading(true)
+    getRelatedBooks(bookId)
+      .then(r => { if (r.success) setBooks(r.data) })
+      .finally(() => setLoading(false))
+  }, [bookId])
+
+  if (!loading && books.length === 0) return null
+
+  return (
+    <div className="container" style={{ marginBottom: '4rem' }}>
+      <h2 style={{ fontFamily: 'var(--font-display-arabic)', color: 'var(--color-primary)', marginBottom: '1.25rem' }}>
+        {t('bookDetail.relatedTitle')}
+      </h2>
+      <div className={styles.relatedRow}>
+        {loading
+          ? Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className={styles.relatedCardSkeleton}>
+                <div className={styles.relatedSkeletonCover} />
+                <div className={styles.relatedSkeletonLine} />
+                <div className={`${styles.relatedSkeletonLine} ${styles.relatedSkeletonLineShort}`} />
+              </div>
+            ))
+          : books.map(b => (
+              <Link key={b.id} to={`/library/${b.id}`} className={styles.relatedCard}>
+                <div className={styles.relatedCoverWrap}>
+                  {b.cover_image
+                    ? <img src={assetUrl(b.cover_image)} alt={b.title} className={styles.relatedCoverImg} />
+                    : <div className={styles.relatedCoverFallback}>{b.title?.charAt(0) || '📖'}</div>
+                  }
+                </div>
+                <div className={styles.relatedInfo}>
+                  <span className={styles.relatedTitle}>{b.title}</span>
+                  <span className={styles.relatedAuthor}>{b.author}</span>
+                </div>
+              </Link>
+            ))
+        }
+      </div>
+    </div>
+  )
+}
+
 function PreviewCard({ src, label, onClick, available, bookTitle }) {
+  const t = useT()
   return (
     <figure
       className={styles.previewCard}
@@ -321,7 +374,7 @@ function PreviewCard({ src, label, onClick, available, bookTitle }) {
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', background: 'linear-gradient(135deg, var(--bg-elevated-2), var(--bg-elevated))' }}>
             <span style={{ fontSize: '2rem' }}>📄</span>
-            <span style={{ fontSize: '0.85rem' }}>غير متاحة</span>
+            <span style={{ fontSize: '0.85rem' }}>{t('bookDetail.unavailable')}</span>
           </div>
         )}
       </div>

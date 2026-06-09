@@ -1,0 +1,50 @@
+/* frontend-react/src/pages/library/ReadingList.module.css */
+
+.page { padding: 2rem 0 4rem; }
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.heading {
+  font-family: var(--font-display-arabic);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.count {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Ensure the card info column stretches so the remove btn sticks to the bottom */
+.card > div:last-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.removeBtn {
+  margin-top: auto;
+  width: 100%;
+  color: #e53e3e;
+  border-color: rgba(229, 62, 62, 0.3);
+}
+
+.removeBtn:hover {
+  background: rgba(229, 62, 62, 0.08);
+  border-color: #e53e3e;
+  color: #e53e3e;
+}

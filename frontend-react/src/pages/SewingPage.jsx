@@ -1,7 +1,5 @@
-// frontend-react/src/pages/SewingPage.jsx
-// قسم الخياطة — Sewing & Traditional Crafts Section
-
 import { Link } from 'react-router-dom'
+import { useT } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
 import styles from './SectionPage.module.css'
 
@@ -15,13 +13,15 @@ const WORKSHOPS = [
 ]
 
 export default function SewingPage() {
+  const t = useT()
+
   return (
-    <div dir="rtl">
+    <div>
       <SectionHero
-        title="قسم الخياطة والحرف اليدوية"
-        subtitle="الحرف الأصيلة — توارث عبر الأجيال"
-        description="نحافظ على فنون الخياطة والتطريز التقليدي ونعلّمها للأجيال الجديدة."
-        badge="حرف يدوية"
+        title={t('nav.sewing')}
+        subtitle={t('sewing.heroSubtitle')}
+        description={t('sewing.heroDesc')}
+        badge={t('sewing.heroBadge')}
       />
 
       <section className={`section ${styles.content}`}>
@@ -29,29 +29,26 @@ export default function SewingPage() {
 
           <div className={styles.introGrid}>
             <div className={styles.introText}>
-              <h2 className="section-title">عن القسم</h2>
-              {/* ↓↓↓ REPLACE WITH YOUR TEXT ↓↓↓ */}
-              <p>أضف هنا وصفاً لقسم الخياطة — تاريخه، أهدافه، وما يقدمه للمجتمع.</p>
-              <p>يمكنك ذكر عدد المتدربات والمدربات المتخصصات في القسم.</p>
-              {/* ↑↑↑ END ↑↑↑ */}
+              <h2 className="section-title">{t('sewing.headingAbout')}</h2>
+              <p>{t('sewing.para1')}</p>
+              <p>{t('sewing.para2')}</p>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-                <Link to="/contact" className="btn btn-primary">التسجيل في ورشة</Link>
-                <Link to="/contact" className="btn btn-ghost">للمزيد من المعلومات</Link>
+                <Link to="/contact" className="btn btn-primary">{t('sewing.registerBtn')}</Link>
+                <Link to="/contact" className="btn btn-ghost">{t('sewing.infoBtn')}</Link>
               </div>
             </div>
             <div className={styles.introImage}>
               <div className="img-placeholder" style={{ minHeight: 300 }}>
-                {/* <img src="/images/sewing-section.jpg" alt="قسم الخياطة" /> */}
+                {/* <img src="/images/sewing-section.jpg" alt={t('sewing.imgCaption')} /> */}
                 <span style={{ fontSize: '4rem' }}>🪡</span>
-                <span>صورة من الورشة</span>
+                <span>{t('sewing.imgCaption')}</span>
               </div>
             </div>
           </div>
 
           <div className="ornament-divider"><span>✦</span></div>
 
-          {/* Workshops */}
-          <h2 className="section-title" style={{ textAlign: 'center' }}>ورشاتنا التدريبية</h2>
+          <h2 className="section-title" style={{ textAlign: 'center' }}>{t('sewing.workshopsHeading')}</h2>
           <div className={styles.workshopGrid}>
             {WORKSHOPS.map(w => (
               <WorkshopCard key={w.title} workshop={w} />
@@ -60,15 +57,14 @@ export default function SewingPage() {
 
           <div className="ornament-divider"><span>✦</span></div>
 
-          {/* Gallery */}
           <div className={styles.gallery}>
-            <h3 className={styles.galleryTitle}>من إبداعات المتدربات</h3>
+            <h3 className={styles.galleryTitle}>{t('sewing.galleryHeading')}</h3>
             <div className={styles.galleryGrid}>
               {[1,2,3,4,5,6].map(i => (
                 <div key={i} className="img-placeholder" style={{ minHeight: 160 }}>
-                  {/* <img src={`/images/sewing-work-${i}.jpg`} alt={`إبداع ${i}`} /> */}
+                  {/* <img src={`/images/sewing-work-${i}.jpg`} alt={t('sewing.galleryAlt', { i })} /> */}
                   <span style={{ fontSize: '1.5rem' }}>🎨</span>
-                  <span style={{ fontSize: '0.8rem' }}>عمل {i}</span>
+                  <span style={{ fontSize: '0.8rem' }}>{t('sewing.galleryAlt', { i })}</span>
                 </div>
               ))}
             </div>

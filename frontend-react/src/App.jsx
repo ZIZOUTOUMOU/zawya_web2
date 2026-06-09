@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import Layout from './components/Layout'
 import PageLoader from './components/ui/PageLoader'
+import { LanguageProvider } from './context/LanguageContext'
 import './styles/global.css'
 
 // ─── Lazy-load pages (code splitting for performance) ─────────────
@@ -24,6 +25,7 @@ const ContactPage      = lazy(() => import('./pages/ContactPage'))
 // Library section — reuses existing backend, now as a React component
 const LibraryPage      = lazy(() => import('./pages/library/LibraryPage'))
 const BookDetailPage   = lazy(() => import('./pages/library/BookDetailPage'))
+const ReadingListPage  = lazy(() => import('./pages/library/ReadingListPage'))
 
 // Admin section
 const AdminLoginPage   = lazy(() => import('./pages/admin/AdminLoginPage'))
@@ -33,8 +35,9 @@ const AdminDashboard   = lazy(() => import('./pages/admin/AdminDashboard'))
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
+      <LanguageProvider>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
           {/* ── Public site — all wrapped in Layout (Navbar + Footer) ── */}
           <Route element={<Layout />}>
             {/* Home */}
@@ -67,7 +70,14 @@ export default function App() {
             {/* Library (reuses existing backend) */}
             <Route path="/المكتبة"       element={<LibraryPage />} />
             <Route path="/library"       element={<LibraryPage />} />
+            <Route path="/المكتبة/:id"   element={<BookDetailPage />} />
+            <Route path="/الكتاب/:id"    element={<BookDetailPage />} />
+            <Route path="/الكتب/:id"     element={<BookDetailPage />} />
             <Route path="/library/:id"   element={<BookDetailPage />} />
+
+            {/* Reading List */}
+            <Route path="/قائمة-القراءة" element={<ReadingListPage />} />
+            <Route path="/reading-list"  element={<ReadingListPage />} />
 
             {/* Contact */}
             <Route path="/التواصل"       element={<ContactPage />} />
@@ -81,8 +91,9 @@ export default function App() {
 
           {/* ── Fallback ── */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+          </Routes>
+        </Suspense>
+      </LanguageProvider>
     </BrowserRouter>
   )
 }

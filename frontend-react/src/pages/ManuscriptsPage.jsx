@@ -1,12 +1,8 @@
-// frontend-react/src/pages/ManuscriptsPage.jsx
-// المخطوطات — Manuscripts Gallery & Viewer
-
 import { useState } from 'react'
+import { useT } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
 import styles from './SectionPage.module.css'
 
-// ─── Placeholder manuscript data — replace with real data ─────────
-// When you have real manuscripts, load them from an API or a JSON file.
 const MANUSCRIPTS = [
   { id: 1,  title: 'رسالة في علم الكلام',        date: 'القرن ١٢ هـ', subject: 'علم الكلام',  emoji: '📜' },
   { id: 2,  title: 'شرح الجامع الصغير',           date: 'القرن ١١ هـ', subject: 'الفقه',       emoji: '📜' },
@@ -22,6 +18,7 @@ const MANUSCRIPTS = [
 const SUBJECTS = ['الكل', ...new Set(MANUSCRIPTS.map(m => m.subject))]
 
 export default function ManuscriptsPage() {
+  const t = useT()
   const [filter,   setFilter]   = useState('الكل')
   const [selected, setSelected] = useState(null)
 
@@ -30,44 +27,35 @@ export default function ManuscriptsPage() {
     : MANUSCRIPTS.filter(m => m.subject === filter)
 
   return (
-    <div dir="rtl">
+    <div>
       <SectionHero
-        title="المخطوطات"
-        subtitle="كنوز الإرث الإسلامي والعلمي"
-        description="مجموعة نادرة ومتنوعة من المخطوطات التي تعكس ثراء الحضارة الإسلامية."
-        badge="تراث نادر"
+        title={t('nav.manuscripts')}
+        subtitle={t('manuscripts.heroSubtitle')}
+        description={t('manuscripts.heroDesc')}
+        badge={t('manuscripts.heroBadge')}
       />
 
       <section className={`section ${styles.content}`}>
         <div className="container">
 
-          {/* Intro */}
           <div className={styles.introGrid}>
             <div className={styles.introText}>
-              <h2 className="section-title">مجموعتنا المخطوطاتية</h2>
-              {/* ↓↓↓ REPLACE WITH YOUR TEXT ↓↓↓ */}
-              <p>
-                أضف هنا وصفاً لمجموعة المخطوطات المحفوظة في الزاوية — عددها،
-                مجالاتها، وكيفية حفظها وصونها.
-              </p>
-              <p>
-                يمكنك ذكر أبرز المخطوطات وقيمتها التاريخية والعلمية.
-              </p>
-              {/* ↑↑↑ END ↑↑↑ */}
+              <h2 className="section-title">{t('manuscripts.heading')}</h2>
+              <p>{t('manuscripts.para1')}</p>
+              <p>{t('manuscripts.para2')}</p>
             </div>
 
             <div className={styles.introImage}>
               <div className="img-placeholder" style={{ minHeight: 280 }}>
-                {/* <img src="/images/manuscripts-collection.jpg" alt="المخطوطات" /> */}
+                {/* <img src="/images/manuscripts-collection.jpg" alt={t('manuscripts.imgCaption')} /> */}
                 <span style={{ fontSize: '4rem' }}>📜</span>
-                <span>صورة المجموعة</span>
+                <span>{t('manuscripts.imgCaption')}</span>
               </div>
             </div>
           </div>
 
           <div className="ornament-divider"><span>✦</span></div>
 
-          {/* Filter bar */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'center' }}>
             {SUBJECTS.map(s => (
               <button
@@ -75,12 +63,11 @@ export default function ManuscriptsPage() {
                 className={filter === s ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'}
                 onClick={() => setFilter(s)}
               >
-                {s}
+                {s === 'الكل' ? t('manuscripts.filterAll') : s}
               </button>
             ))}
           </div>
 
-          {/* Manuscripts grid */}
           <div className={styles.manuscriptGrid}>
             {filtered.map(ms => (
               <ManuscriptCard
@@ -91,20 +78,14 @@ export default function ManuscriptsPage() {
             ))}
           </div>
 
-          {/* Note for admin */}
           <div className={styles.infoCard} style={{ marginTop: '3rem' }}>
-            <h3>إضافة مخطوطة جديدة</h3>
-            <p>
-              لإضافة مخطوطات حقيقية إلى هذه المجموعة، يمكنك إما تعديل مصفوفة
-              <code style={{ background: 'rgba(255,255,255,0.15)', padding: '0 4px', borderRadius: '3px', margin: '0 4px' }}>MANUSCRIPTS</code>
-              في هذا الملف مباشرة، أو إنشاء جدول قاعدة بيانات خاص وربطه بـ API.
-            </p>
+            <h3>{t('manuscripts.infoHeading')}</h3>
+            <p>{t('manuscripts.infoText')}</p>
           </div>
 
         </div>
       </section>
 
-      {/* Lightbox viewer */}
       {selected && (
         <div className="lightbox" onClick={() => setSelected(null)}>
           <div className="lightbox-overlay" />
@@ -122,13 +103,13 @@ export default function ManuscriptsPage() {
               </h3>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <InfoRow label="التاريخ"    value={selected.date} />
-              <InfoRow label="الموضوع"    value={selected.subject} />
+              <InfoRow label={t('manuscripts.labelDate')}    value={selected.date} />
+              <InfoRow label={t('manuscripts.labelSubject')} value={selected.subject} />
             </div>
             <div className="img-placeholder" style={{ marginTop: '1rem', minHeight: 200 }}>
-              {/* <img src={selected.fullImageUrl} alt={selected.title} /> */}
+              {/* <img src={selected.fullImageUrl} alt={t('manuscripts.lightboxAlt')} /> */}
               <span style={{ fontSize: '2rem' }}>🖼️</span>
-              <span>صورة المخطوطة الكاملة</span>
+              <span>{t('manuscripts.lightboxAlt')}</span>
             </div>
           </div>
         </div>

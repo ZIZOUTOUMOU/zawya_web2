@@ -176,6 +176,14 @@
   margin: 0;
 }
 
+.authorLink {
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 150ms;
+}
+.authorLink:hover { color: var(--color-primary); text-decoration: underline; }
+
 .meta {
   display: flex;
   align-items: center;
@@ -221,4 +229,280 @@
 
 @media (max-width: 400px) {
   .bookGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── Search suggestions dropdown ─── */
+.searchWrapper {
+  position: relative;
+}
+
+.searchSuggestions {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  margin-top: 0.25rem;
+  overflow: hidden;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 150ms;
+  text-align: right;
+}
+
+.suggestionItem:hover {
+  background: color-mix(in srgb, var(--bg-elevated) 80%, var(--border));
+}
+
+.suggestionCover {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-sm, 4px);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+}
+
+.suggestionCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.suggestionPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-accent-light);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.suggestionInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.suggestionTitle {
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.suggestionAuthor {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.suggestionEmpty {
+  padding: 0.75rem 1rem;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+/* ─── View toggle ─── */
+.catalogHeadRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.viewToggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.viewToggleBtn {
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 0.35rem 0.7rem !important;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* ─── Book list view ─── */
+.bookList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.skeletonListRow {
+  height: 108px;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bookCardList {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 150ms;
+  color: var(--text);
+  text-align: right;
+}
+
+.bookCardList:last-child {
+  border-bottom: none;
+}
+
+.bookCardList:hover {
+  background: color-mix(in srgb, var(--bg-elevated) 50%, var(--bg-elevated-2));
+}
+
+.bookCardListCover {
+  width: 80px;
+  min-width: 80px;
+  height: 120px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-elevated-2);
+  flex-shrink: 0;
+}
+
+.bookCardListCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bookCardListPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-accent-light);
+  font-family: var(--font-display-arabic);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.bookCardListInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bookCardListTitle {
+  font-family: var(--font-display-arabic);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookCardListAuthor {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.bookCardListMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.bookCardListDesc {
+  font-size: 0.84rem;
+  color: var(--text-soft);
+  margin: 0.2rem 0 0;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bookCardListActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  align-items: stretch;
+}
+
+@media (max-width: 640px) {
+  .bookCardListActions { display: none; }
+  .bookCardListTitle {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ─── Random book discovery ─── */
+.randomBookCard {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.randomBookBtn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  color: var(--color-accent);
+  font-family: var(--font-display-arabic);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms, opacity 150ms;
+  text-align: center;
+  direction: rtl;
+}
+
+.randomBookBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.randomBookBtn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.randomError {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-danger, #e05252);
+  text-align: center;
 }

@@ -60,6 +60,7 @@ export const api = {
 export async function getBooks(params = {}) {
   const q = new URLSearchParams();
   if (params.search)    q.set('search',    params.search);
+  if (params.author)    q.set('author',    params.author);
   if (params.category)  q.set('category',  params.category);
   if (params.year_from) q.set('year_from', params.year_from);
   if (params.year_to)   q.set('year_to',   params.year_to);
@@ -73,9 +74,11 @@ export async function getBooks(params = {}) {
 export const getFeaturedBooks = ()       => api.get(`${BASE}/books/featured`);
 export const getRecentBooks   = ()       => api.get(`${BASE}/books/recent`);
 export const getBook          = (id)     => api.get(`${BASE}/books/${id}`);
+export const getRelatedBooks  = (id)     => api.get(`${BASE}/books/${id}/related`);
 export const getCategories    = ()       => api.get(`${BASE}/categories`);
 export const getStats         = ()       => api.get(`${BASE}/stats`);
 export const searchBooks      = (q)      => api.get(`${BASE}/search?q=${encodeURIComponent(q)}`);
+export const getRandomBook    = ()       => api.get(`${BASE}/books/random`);
 
 // ─── Admin API ────────────────────────────────────────────────────
 

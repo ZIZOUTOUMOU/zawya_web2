@@ -94,11 +94,12 @@
 
 /* ─── RTL Base ───────────────────────────────────────────────────── */
 html {
-  direction: rtl;            /* Right-to-left globally */
-  lang: ar;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
+
+html[dir="rtl"] { direction: rtl; }
+html[dir="ltr"] { direction: ltr; }
 
 body {
   font-family: var(--font-body);
@@ -106,8 +107,8 @@ body {
   line-height: 1.7;
   background: var(--bg);
   color: var(--text);
-  direction: rtl;
-  text-align: right;         /* Arabic text flows right-to-left */
+  direction: inherit;
+  text-align: start;         /* Follows direction automatically */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background var(--transition-slow), color var(--transition-slow);
