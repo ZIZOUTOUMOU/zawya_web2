@@ -512,6 +512,7 @@ function BookCard({ book, delay }) {
         </p>
         <div className={styles.meta}>
           <span className="badge">{book.category || 'عام'}</span>
+          {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{book.publication_year}</span>}
           {rating > 0 && (
             <span className="stars" style={{ fontSize: '0.75rem' }}>
@@ -571,6 +572,7 @@ function BookCardList({ book, delay }) {
         </p>
         <div className={styles.bookCardListMeta}>
           <span className="badge">{book.category || 'عام'}</span>
+          {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && (
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{book.publication_year}</span>
           )}

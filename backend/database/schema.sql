@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS books (
   is_visible        INTEGER  DEFAULT 1,
   is_featured       INTEGER  DEFAULT 0,
   created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP
+  updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+  call_number       TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_books_category   ON books(category);

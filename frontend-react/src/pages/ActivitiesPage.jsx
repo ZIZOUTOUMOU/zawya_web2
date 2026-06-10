@@ -1,10 +1,8 @@
-// frontend-react/src/pages/ActivitiesPage.jsx
-// أنشطة مختلفة — General Community Activities (blog/gallery)
-
+import { useState } from 'react'
+import { useT } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
 import styles from './SectionPage.module.css'
 
-// ─── Placeholder activities — replace with API or CMS data ────────
 const ACTIVITIES = [
   {
     id: 1, emoji: '🎉', date: 'يناير ٢٠٢٥',
@@ -44,30 +42,27 @@ const ACTIVITIES = [
   },
 ]
 
-const CATEGORIES = ['الكل', ...new Set(ACTIVITIES.map(a => a.category))]
-
-import { useState } from 'react'
-
 export default function ActivitiesPage() {
-  const [filter, setFilter] = useState('الكل')
+  const t = useT()
+  const CATEGORIES = [t('activities.filterAll'), ...new Set(ACTIVITIES.map(a => a.category))]
+  const [filter, setFilter] = useState(t('activities.filterAll'))
 
-  const filtered = filter === 'الكل'
+  const filtered = filter === t('activities.filterAll')
     ? ACTIVITIES
     : ACTIVITIES.filter(a => a.category === filter)
 
   return (
-    <div dir="rtl">
+    <div>
       <SectionHero
-        title="أنشطة مختلفة"
-        subtitle="فعاليات وبرامج لكل المجتمع"
-        description="نظّم الزاوية طوال العام فعاليات ثقافية وتعليمية ودينية واجتماعية متنوعة."
-        badge="فعاليات وأنشطة"
+        title={t('nav.activities')}
+        subtitle={t('activities.heroSubtitle')}
+        description={t('activities.heroDesc')}
+        badge={t('activities.heroBadge')}
       />
 
       <section className={`section ${styles.content}`}>
         <div className="container">
 
-          {/* Filter */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'center' }}>
             {CATEGORIES.map(c => (
               <button
@@ -80,7 +75,6 @@ export default function ActivitiesPage() {
             ))}
           </div>
 
-          {/* Activities grid */}
           <div className={styles.activityGrid}>
             {filtered.map(act => (
               <ActivityCard key={act.id} activity={act} />
@@ -89,17 +83,14 @@ export default function ActivitiesPage() {
 
           {filtered.length === 0 && (
             <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
-              لا توجد فعاليات في هذا التصنيف حالياً.
+              {t('activities.empty')}
             </p>
           )}
 
-          {/* Note */}
           <div className={styles.infoCard} style={{ marginTop: '3rem' }}>
-            <h3>إضافة فعاليات جديدة</h3>
+            <h3>{t('activities.infoHeading')}</h3>
             <p>
-              لإضافة فعاليات حقيقية، عدّل مصفوفة <code style={{ background: 'rgba(255,255,255,0.15)', padding: '0 4px', borderRadius: '3px', margin: '0 4px' }}>ACTIVITIES</code>
-              في ملف <code style={{ background: 'rgba(255,255,255,0.15)', padding: '0 4px', borderRadius: '3px' }}>ActivitiesPage.jsx</code>،
-              أو أنشئ جدول قاعدة بيانات وربطه بـ API.
+              {t('activities.infoText')}
             </p>
           </div>
 

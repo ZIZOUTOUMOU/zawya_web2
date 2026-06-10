@@ -1,13 +1,12 @@
-// frontend-react/src/pages/ContactPage.jsx
-// التواصل — Contact Us Page with functional form
-
 import { useState } from 'react'
+import { useT } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
 import styles from './SectionPage.module.css'
 
 export default function ContactPage() {
+  const t = useT()
   const [form, setForm]     = useState({ name: '', email: '', phone: '', subject: '', message: '' })
-  const [status, setStatus] = useState('idle') // idle | sending | success | error
+  const [status, setStatus] = useState('idle')
   const [error,  setError]  = useState('')
 
   const handleChange = e => {
@@ -19,141 +18,107 @@ export default function ContactPage() {
     setStatus('sending')
     setError('')
 
-    // ─────────────────────────────────────────────────────────────────
-    // OPTION A: Send via a backend endpoint you create in Express
-    // Example: POST /api/contact
-    // ─────────────────────────────────────────────────────────────────
-    // try {
-    //   const res = await fetch('/api/contact', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(form),
-    //   })
-    //   if (!res.ok) throw new Error('فشل الإرسال')
-    //   setStatus('success')
-    // } catch (err) {
-    //   setError(err.message)
-    //   setStatus('error')
-    // }
-
-    // ─────────────────────────────────────────────────────────────────
-    // OPTION B: Simple mailto fallback (works without a backend)
-    // ─────────────────────────────────────────────────────────────────
-    const subject = encodeURIComponent(form.subject || 'رسالة من الموقع')
+    const subject = encodeURIComponent(form.subject || '')
     const body    = encodeURIComponent(
-      `الاسم: ${form.name}\nالبريد: ${form.email}\nالهاتف: ${form.phone}\n\n${form.message}`
+      `${t('contact.formName')}: ${form.name}\n${t('contact.formEmail')}: ${form.email}\n${t('contact.formPhone')}: ${form.phone}\n\n${form.message}`
     )
     window.location.href = `mailto:zawiya@example.com?subject=${subject}&body=${body}`
-    // Simulate success for UX
     setTimeout(() => setStatus('success'), 400)
   }
 
   return (
-    <div dir="rtl">
+    <div>
       <SectionHero
-        title="تواصل معنا"
-        subtitle="نحن هنا للإجابة على استفساراتك"
-        description="يسعدنا سماع منك. تواصل معنا للاستفسار أو الانضمام أو أي طلب آخر."
-        badge="تواصل"
+        title={t('nav.contact')}
+        subtitle={t('contact.heroSubtitle')}
+        description={t('contact.heroDesc')}
+        badge={t('contact.heroBadge')}
       />
 
       <section className={`section ${styles.content}`}>
         <div className="container">
           <div className={styles.contactGrid}>
 
-            {/* ── Contact info ── */}
             <div className={styles.contactInfo}>
-              <h2 className="section-title">معلومات التواصل</h2>
+              <h2 className="section-title">{t('contact.heading')}</h2>
 
               <ContactInfoItem
                 icon="📧"
-                title="البريد الإلكتروني"
+                title={t('contact.emailTitle')}
                 content={
                   <a href="mailto:zawiya@example.com" className={styles.link}>
                     zawiya@example.com
                   </a>
                 }
-                note="نرد خلال ٢٤ ساعة"
+                note={t('contact.emailNote')}
               />
 
               <ContactInfoItem
                 icon="📞"
-                title="الهاتف"
+                title={t('contact.phoneTitle')}
                 content={
                   <a href="tel:+213XXXXXXXX" className={styles.link}>
                     +213 XX XX XX XX
                   </a>
                 }
-                note="من الأحد إلى الخميس، ٨ص–٤م"
+                note={t('contact.phoneNote')}
               />
 
               <ContactInfoItem
                 icon="📍"
-                title="العنوان"
-                content={<span>ورقلة، الجزائر</span>}
-                note={
-                  /* ↓↓↓ Replace with your real address ↓↓↓ */
-                  "أضف هنا العنوان التفصيلي للزاوية"
-                }
+                title={t('contact.addressTitle')}
+                content={<span>{t('contact.addressValue')}</span>}
+                note={t('contact.addressNote')}
               />
 
               <ContactInfoItem
                 icon="⏰"
-                title="أوقات الدوام"
-                content={<span>الأحد – الخميس</span>}
-                note="٨:٠٠ صباحاً – ٥:٠٠ مساءً"
+                title={t('contact.hoursTitle')}
+                content={<span>{t('contact.hoursDays')}</span>}
+                note={t('contact.hoursTime')}
               />
 
-              {/* Map placeholder */}
               <div className="img-placeholder" style={{ minHeight: 200, marginTop: '1rem' }}>
-                {/* Replace with an actual map embed:
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=..."
-                    width="100%" height="100%" style={{ border: 0 }}
-                    allowFullScreen loading="lazy"
-                  />
-                */}
                 <span style={{ fontSize: '2rem' }}>🗺️</span>
-                <span>خريطة الموقع</span>
-                <small style={{ opacity: 0.6 }}>أضف رابط خرائط جوجل هنا</small>
+                <span>{t('contact.mapCaption')}</span>
+                <small style={{ opacity: 0.6 }}>{t('contact.mapHint')}</small>
               </div>
             </div>
 
-            {/* ── Contact form ── */}
             <div className={styles.contactForm}>
               {status === 'success' ? (
                 <div className={styles.formSuccess}>
                   <span>✅</span>
-                  <h3 style={{ color: 'var(--color-primary)' }}>تم الإرسال بنجاح!</h3>
+                  <h3 style={{ color: 'var(--color-primary)' }}>{t('contact.successHeading')}</h3>
                   <p style={{ color: 'var(--text-muted)' }}>
-                    شكراً لتواصلك معنا. سنرد عليك في أقرب وقت ممكن.
+                    {t('contact.successMsg')}
                   </p>
                   <button
                     className="btn btn-primary"
                     style={{ marginTop: '1rem' }}
                     onClick={() => { setStatus('idle'); setForm({ name: '', email: '', phone: '', subject: '', message: '' }) }}
                   >
-                    إرسال رسالة أخرى
+                    {t('contact.successBtn')}
                   </button>
                 </div>
               ) : (
                 <>
-                  <h3>أرسل لنا رسالة</h3>
+                  <h3>{t('contact.formHeading')}</h3>
                   <form onSubmit={handleSubmit} noValidate>
 
                     <div className={styles.formRow}>
                       <div className="form-group">
-                        <label className="form-label" htmlFor="name">الاسم الكامل *</label>
+                        <label className="form-label" htmlFor="name">{t('contact.formName')}</label>
                         <input
                           id="name" name="name" type="text"
                           className="form-input"
                           value={form.name} onChange={handleChange}
-                          placeholder="اسمك الكامل"
+                          placeholder={t('contact.namePlaceholder')}
                           required
                         />
                       </div>
                       <div className="form-group">
-                        <label className="form-label" htmlFor="phone">رقم الهاتف</label>
+                        <label className="form-label" htmlFor="phone">{t('contact.formPhone')}</label>
                         <input
                           id="phone" name="phone" type="tel"
                           className="form-input"
@@ -165,7 +130,7 @@ export default function ContactPage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label" htmlFor="email">البريد الإلكتروني *</label>
+                      <label className="form-label" htmlFor="email">{t('contact.formEmail')}</label>
                       <input
                         id="email" name="email" type="email"
                         className="form-input"
@@ -177,31 +142,31 @@ export default function ContactPage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label" htmlFor="subject">موضوع الرسالة *</label>
+                      <label className="form-label" htmlFor="subject">{t('contact.formSubject')}</label>
                       <select
                         id="subject" name="subject"
                         className="form-select"
                         value={form.subject} onChange={handleChange}
                         required
                       >
-                        <option value="">اختر موضوعاً…</option>
-                        <option>الاستفسار العام</option>
-                        <option>التسجيل في المدرسة القرآنية</option>
-                        <option>التسجيل في ورشات الخياطة</option>
-                        <option>المخطوطات والتراث</option>
-                        <option>الانضمام للجمعية</option>
-                        <option>التبرع والدعم</option>
-                        <option>أخرى</option>
+                        <option value="">{t('contact.subjectPlaceholder')}</option>
+                        <option>{t('contact.subjectGeneral')}</option>
+                        <option>{t('contact.subjectQuran')}</option>
+                        <option>{t('contact.subjectSewing')}</option>
+                        <option>{t('contact.subjectMss')}</option>
+                        <option>{t('contact.subjectJoin')}</option>
+                        <option>{t('contact.subjectDonate')}</option>
+                        <option>{t('contact.subjectOther')}</option>
                       </select>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label" htmlFor="message">رسالتك *</label>
+                      <label className="form-label" htmlFor="message">{t('contact.formMessage')}</label>
                       <textarea
                         id="message" name="message"
                         className="form-textarea"
                         value={form.message} onChange={handleChange}
-                        placeholder="اكتب رسالتك هنا…"
+                        placeholder={t('contact.messagePlaceholder')}
                         rows={5}
                         required
                       />
@@ -219,11 +184,11 @@ export default function ContactPage() {
                       style={{ width: '100%' }}
                       disabled={status === 'sending'}
                     >
-                      {status === 'sending' ? 'جارٍ الإرسال…' : 'إرسال الرسالة ✉️'}
+                      {status === 'sending' ? t('contact.sendingText') : t('contact.submitText')}
                     </button>
 
                     <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.75rem', textAlign: 'center' }}>
-                      لن نشارك معلوماتك مع أي طرف ثالث.
+                      {t('contact.privacy')}
                     </p>
                   </form>
                 </>

@@ -143,6 +143,15 @@ export default function BookDetailPage() {
         {/* ── Info ── */}
         <div className={styles.info}>
           {book.category && <span className="badge" style={{ marginBottom: '0.5rem' }}>{book.category}</span>}
+          {book.call_number && (
+            <span style={{
+              display: 'inline-block', background: 'var(--color-accent)',
+              color: '#fff', padding: '2px 10px', borderRadius: '4px',
+              fontSize: '0.85rem', fontFamily: 'monospace', marginBottom: '0.5rem'
+            }}>
+              📍 {book.call_number}
+            </span>
+          )}
           <h1 className={styles.title}>{book.title}</h1>
           <p className={styles.by}>
             {t('bookDetail.byAuthor')}{' '}

@@ -153,6 +153,7 @@ function ReadingListCard({ book, delay, onRemove }) {
         </p>
         <div className={libStyles.meta}>
           <span className="badge">{book.category || 'عام'}</span>
+          {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && (
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
               {book.publication_year}
