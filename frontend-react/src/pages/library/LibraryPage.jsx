@@ -147,7 +147,9 @@ export default function LibraryPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / limit))
 
-  const hasFilters = !!(debouncedSearch || debouncedAuthor || category || language || yearFrom || yearTo)
+  const activeFilterCount = [debouncedSearch, debouncedAuthor, category, language, yearFrom, yearTo]
+    .filter(Boolean).length
+  const hasFilters = activeFilterCount > 0
 
   return (
     <div>
@@ -165,6 +167,11 @@ export default function LibraryPage() {
               {loading
                 ? t('library.loading')
                 : t('library.booksCount', { count: total })}
+              {!loading && hasFilters && (
+                <span style={{ fontSize: '0.82rem', marginInlineStart: '0.6rem', color: 'var(--color-accent-dark)' }}>
+                  · {t('library.activeFilters', { count: activeFilterCount })}
+                </span>
+              )}
             </h2>
             <div className={styles.catalogHeadRight}>
               <div className={styles.viewToggle}>
@@ -186,8 +193,10 @@ export default function LibraryPage() {
               <button
                 className={`btn btn-ghost btn-sm ${styles.filterToggle}`}
                 onClick={() => setSidebarOpen(o => !o)}
+                aria-expanded={sidebarOpen}
               >
                 {sidebarOpen ? t('library.filterToggleHide') : t('library.filterToggleShow')}
+                {!sidebarOpen && activeFilterCount > 0 && ` (${activeFilterCount})`}
               </button>
             </div>
           </div>
@@ -357,6 +366,9 @@ export default function LibraryPage() {
                   {language  && <Chip label={language}  onRemove={() => { setLanguage(''); setPage(1) }} />}
                   {yearFrom  && <Chip label={t('library.chipFrom', { year: yearFrom })}  onRemove={() => { setYearFrom(''); setPage(1) }} />}
                   {yearTo    && <Chip label={t('library.chipTo', { year: yearTo })}      onRemove={() => { setYearTo('');   setPage(1) }} />}
+                  <button className="btn-link" style={{ fontSize: '0.85rem' }} onClick={clearFilters}>
+                    {t('library.clearFilters')}
+                  </button>
                 </div>
               )}
 

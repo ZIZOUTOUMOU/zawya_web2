@@ -45,6 +45,7 @@ const translations = {
       retry: 'إعادة المحاولة',
       removeFilter: 'إزالة المرشح: {label}',
       prevPage: 'الصفحة السابقة', nextPage: 'الصفحة التالية',
+      activeFilters: 'المرشحات النشطة: {count}',
     },
     bookDetail: {
       backToLibrary: 'العودة إلى المكتبة', byAuthor: 'تأليف',
@@ -389,6 +390,7 @@ const translations = {
       retry: 'Retry',
       removeFilter: 'Remove filter: {label}',
       prevPage: 'Previous page', nextPage: 'Next page',
+      activeFilters: 'Active filters: {count}',
     },
     bookDetail: {
       backToLibrary: '← Back to Library', byAuthor: 'by',
