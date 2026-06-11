@@ -82,7 +82,7 @@ export default function AssociationPage() {
               {[
                 { label: 'رقم السجل', value: 'أضف الرقم هنا' },
                 { label: 'تاريخ التأسيس', value: 'أضف التاريخ هنا' },
-                { label: 'الولاية', value: 'ورقلة، الجزائر' },
+                { label: 'الولاية', value: 'قمار، الجزائر' },
               ].map(i => (
                 <div key={i.label}>
                   <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>{i.label}</div>

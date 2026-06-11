@@ -57,7 +57,7 @@ export default function Footer() {
           <address className={styles.address}>
             <p>📧 <a href="mailto:zawiya@example.com" className={styles.link}>zawiya@example.com</a></p>
             <p>📞 <a href="tel:+213XXXXXXXX" className={styles.link}>+213 XX XX XX XX</a></p>
-            <p>📍 ورقلة، الجزائر</p>
+            <p>📍 قمار، الجزائر</p>
           </address>
         </div>
 

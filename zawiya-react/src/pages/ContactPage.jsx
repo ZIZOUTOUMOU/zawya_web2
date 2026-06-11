@@ -90,11 +90,8 @@ export default function ContactPage() {
               <ContactInfoItem
                 icon="📍"
                 title="العنوان"
-                content={<span>ورقلة، الجزائر</span>}
-                note={
-                  /* ↓↓↓ Replace with your real address ↓↓↓ */
-                  "أضف هنا العنوان التفصيلي للزاوية"
-                }
+                content={<span>قمار، الجزائر</span>}
+                note="FRR3+9W4, Guemar"
               />
 
               <ContactInfoItem
