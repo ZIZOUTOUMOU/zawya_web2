@@ -1,0 +1,10 @@
+node_modules/
+lirbrery_books/
+backend/uploads/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.webp
+*.ico
