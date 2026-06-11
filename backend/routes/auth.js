@@ -28,7 +28,7 @@ const loginLimiter = rateLimit({
 // ─── Cookie options ───────────────────────────────────────────────
 const cookieOpts = {
   httpOnly: true,
-  sameSite: 'lax',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   secure:   process.env.NODE_ENV === 'production',
   maxAge:   8 * 60 * 60 * 1000,   // 8 hours in ms
   path:     '/',
@@ -40,7 +40,6 @@ router.post('/login', loginLimiter, loginValidation, async (req, res) => {
 
   const admin = db.prepare(`SELECT * FROM admins WHERE email = ?`).get(email);
   if (!admin) {
-    // Constant-time comparison even on "not found" to prevent timing attacks
     await bcrypt.compare(password, '$2a$12$invalidhashpadding000000000000000000000000000000000000000');
     return res.status(401).json({ success: false, error: 'Invalid credentials' });
   }

@@ -124,6 +124,7 @@ app.use('/api', (req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('[server error]', err.message);
+  console.error(err.stack);
   res.status(err.status || 500).json({
     success: false,
     error: NODE_ENV === 'production' ? 'Internal server error' : err.message,
