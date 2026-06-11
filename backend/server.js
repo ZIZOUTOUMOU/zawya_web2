@@ -17,6 +17,7 @@ const helmet       = require('helmet');
 const cors         = require('cors');
 const cookieParser = require('cookie-parser');
 const db           = require('./database/db');
+const seed         = require('./database/seed');
 
 const app      = express();
 const PORT     = parseInt(process.env.PORT, 10) || 3000;
@@ -64,7 +65,12 @@ app.use(cookieParser());
 
 // ─── Wait for DB before handling requests ────────────────────────
 app.use(async (req, res, next) => {
-  try { await db.ready(); next(); }
+  try {
+    await db.ready();
+    // Auto-seed if database is empty (first deploy)
+    await seed.auto();
+    next();
+  }
   catch (e) { next(e); }
 });
 
