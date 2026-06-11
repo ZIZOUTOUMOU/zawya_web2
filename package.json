@@ -5,7 +5,7 @@
   "main": "backend/server.js",
   "scripts": {
     "start":    "node backend/server.js",
-"render-build": "npm install && npm install --prefix frontend-react && cd frontend-react && node node_modules/vite/bin/vite.js build",
+"render-build": "npm install && npm install --prefix frontend-react && cd frontend-react && node node_modules/vite/bin/vite.js build && cd .. && node backend/database/seed.js",
     "dev":      "nodemon backend/server.js",
     "init-db":  "node backend/database/init.js",
     "seed":     "node backend/database/seed.js",
