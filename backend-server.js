@@ -42,6 +42,10 @@ app.use(cors({
     if (ALLOWED_ORIGINS.includes(origin) || NODE_ENV === 'development') {
       return callback(null, true);
     }
+    // Allow all Cloudflare Pages preview subdomains
+    if (/\.zawya-web2\.pages\.dev$/.test(origin)) {
+      return callback(null, true);
+    }
     return callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true, // Allow cookies (JWT auth)
