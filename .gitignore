@@ -14,6 +14,20 @@ yarn-error.log*
 *.db-wal
 *.db-shm
 
+# ─── Opencode / AI tooling ───────────────────────────────────────
+.opencode/
+opencode.json
+webdev_mcp.py
+
+# ─── Source catalog files (large binaries) ───────────────────────
+lirbrery_books/
+
+# ─── Prompts / working notes ─────────────────────────────────────
+prompts/
+
+# ─── Logs ────────────────────────────────────────────────────────
+logs/
+
 # ─── Uploads (user content — back up separately) ─────────────────
 backend/uploads/
 
