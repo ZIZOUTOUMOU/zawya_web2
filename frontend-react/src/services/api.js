@@ -5,7 +5,7 @@
 // In production, they go to the same origin.
 // ═══════════════════════════════════════════════════════
 
-const BASE = '/api';
+const BASE = import.meta.env.VITE_API_URL || '/api';
 
 /**
  * Core fetch wrapper — always returns the API envelope:
