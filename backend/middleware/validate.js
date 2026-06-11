@@ -60,6 +60,66 @@ const bookValidation = [
   handleValidation,
 ];
 
+/** Used by POST /api/admin/events and PUT /api/admin/events/:id */
+const eventValidation = [
+  body('title_ar')
+    .trim().notEmpty().withMessage('Arabic title is required')
+    .isLength({ max: 255 }).withMessage('Arabic title too long'),
+  body('title_en')
+    .trim().notEmpty().withMessage('English title is required')
+    .isLength({ max: 255 }).withMessage('English title too long'),
+  body('description_ar')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 4000 })
+    .customSanitizer(v =>
+      sanitizeHtml(v || '', { allowedTags: [], allowedAttributes: {} })
+    ),
+  body('description_en')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 4000 })
+    .customSanitizer(v =>
+      sanitizeHtml(v || '', { allowedTags: [], allowedAttributes: {} })
+    ),
+  body('location_ar').optional({ checkFalsy: true }).isLength({ max: 255 }),
+  body('location_en').optional({ checkFalsy: true }).isLength({ max: 255 }),
+  body('date')
+    .trim().notEmpty().withMessage('Date is required')
+    .isISO8601().withMessage('Date must be ISO 8601 (e.g. 2026-07-01T18:00:00)'),
+  handleValidation,
+];
+
+/** Used by POST /api/contact */
+const contactValidation = [
+  body('name')
+    .trim().notEmpty().withMessage('Name is required')
+    .isLength({ max: 100 }).withMessage('Name too long')
+    .customSanitizer(v =>
+      sanitizeHtml(v || '', { allowedTags: [], allowedAttributes: {} })
+    ),
+  body('email')
+    .trim()
+    .isEmail().withMessage('Valid email required')
+    .isLength({ max: 255 }),
+  body('phone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^[+\d][\d\s\-().]{4,29}$/).withMessage('Invalid phone number'),
+  body('subject')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 200 }).withMessage('Subject too long')
+    .customSanitizer(v =>
+      sanitizeHtml(v || '', { allowedTags: [], allowedAttributes: {} })
+    ),
+  body('message')
+    .trim().notEmpty().withMessage('Message is required')
+    .isLength({ min: 10, max: 4000 }).withMessage('Message must be 10–4000 characters')
+    .customSanitizer(v =>
+      sanitizeHtml(v || '', { allowedTags: [], allowedAttributes: {} })
+    ),
+  handleValidation,
+];
+
 /** Used by POST /api/admin/login */
 const loginValidation = [
   body('email')
@@ -70,4 +130,4 @@ const loginValidation = [
   handleValidation,
 ];
 
-module.exports = { bookValidation, loginValidation, handleValidation };
+module.exports = { bookValidation, eventValidation, contactValidation, loginValidation, handleValidation };

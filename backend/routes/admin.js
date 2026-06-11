@@ -10,6 +10,13 @@
  * PUT    /api/admin/books/:id
  * DELETE /api/admin/books/:id
  * POST   /api/admin/books/fetch-openlibrary
+ * GET    /api/admin/events
+ * POST   /api/admin/events
+ * POST   /api/admin/events/:id?_method=PUT  (multipart update)
+ * PUT    /api/admin/events/:id
+ * DELETE /api/admin/events/:id
+ * GET    /api/admin/messages
+ * PUT    /api/admin/messages/:id/handled
  */
 'use strict';
 
@@ -19,8 +26,8 @@ const path     = require('path');
 const fs       = require('fs');
 const db       = require('../database/db');
 const { requireAuth }               = require('../middleware/auth');
-const { bookValidation }            = require('../middleware/validate');
-const { uploadBook, UPLOAD_ROOT }   = require('../middleware/upload');
+const { bookValidation, eventValidation }      = require('../middleware/validate');
+const { uploadBook, uploadEvent, UPLOAD_ROOT } = require('../middleware/upload');
 const { resizeCover, optimizePreview, uniqueFilename } = require('../services/imageResize');
 const ol       = require('../services/openLibrary');
 
@@ -48,6 +55,7 @@ function toPublicUrl(field, filename) {
   if (field === 'cover_image')                              sub = 'covers';
   else if (field === 'first_page_img' || field === 'last_page_img') sub = 'previews';
   else if (field === 'pdf_file')                            sub = 'pdfs';
+  else if (field === 'image')                               sub = 'events';
   return `/uploads/${sub}/${path.basename(filename)}`;
 }
 
@@ -57,6 +65,7 @@ function deleteLocal(url) {
   const sub = url.includes('/covers/')   ? 'covers'
             : url.includes('/previews/') ? 'previews'
             : url.includes('/pdfs/')     ? 'pdfs'
+            : url.includes('/events/')   ? 'events'
             : 'misc';
   fs.promises.unlink(path.join(UPLOAD_ROOT, sub, path.basename(url))).catch(() => {});
 }
@@ -329,6 +338,149 @@ router.delete('/books/:id', requireAuth, (req, res) => {
   db.prepare(`DELETE FROM books WHERE id = ?`).run(id);
   logActivity(req.admin.id, 'delete', book.title);
   res.json(envelope({ deleted: id }));
+});
+
+// ═══ Events ═══════════════════════════════════════════════════════
+
+/** Process an uploaded event image, returns its public /uploads/… URL */
+async function storeEventImage(file) {
+  const newName = uniqueFilename('.jpg');
+  const dest    = path.join(UPLOAD_ROOT, 'events', newName);
+  await optimizePreview(file.path, dest);
+  fs.promises.unlink(file.path).catch(() => {});
+  return toPublicUrl('image', newName);
+}
+
+// ─── GET /api/admin/events ────────────────────────────────────────
+router.get('/events', requireAuth, (req, res) => {
+  const rows = db.prepare(`SELECT * FROM events ORDER BY date DESC`).all();
+  res.json(envelope(rows));
+});
+
+// ─── POST /api/admin/events ───────────────────────────────────────
+router.post('/events', requireAuth, uploadEvent, eventValidation, async (req, res) => {
+  try {
+    const body  = req.body;
+    const files = req.files || {};
+
+    // Image: upload takes priority over URL
+    let imagePath = null;
+    if (files.image?.[0]) {
+      imagePath = await storeEventImage(files.image[0]);
+    } else if (body.image_url?.trim()) {
+      imagePath = body.image_url.trim();
+    }
+
+    const result = db.prepare(`
+      INSERT INTO events (
+        title_ar, title_en, description_ar, description_en,
+        location_ar, location_en, date, image
+      ) VALUES (?,?,?,?,?,?,?,?)
+    `).run(
+      body.title_ar,
+      body.title_en,
+      body.description_ar || null,
+      body.description_en || null,
+      body.location_ar    || null,
+      body.location_en    || null,
+      body.date,
+      imagePath,
+    );
+
+    logActivity(req.admin.id, 'add', body.title_en || body.title_ar);
+    const inserted = db.prepare(`SELECT * FROM events WHERE id = ?`).get(result.lastInsertRowid);
+    res.json(envelope(inserted));
+  } catch (e) {
+    console.error('Add event error:', e);
+    res.status(500).json(envelope(null, null, e.message));
+  }
+});
+
+// ─── PUT logic (shared by PUT and POST?_method=PUT) ───────────────
+async function updateEvent(req, res) {
+  try {
+    const id       = parseInt(req.params.id, 10);
+    const existing = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+    if (!existing) return res.status(404).json(envelope(null, null, 'Not found'));
+
+    const body  = req.body;
+    const files = req.files || {};
+
+    let imagePath = existing.image;
+    if (files.image?.[0]) {
+      deleteLocal(existing.image);
+      imagePath = await storeEventImage(files.image[0]);
+    } else if (body.image_url?.trim()) {
+      imagePath = body.image_url.trim();
+    }
+
+    db.prepare(`
+      UPDATE events SET
+        title_ar=?, title_en=?, description_ar=?, description_en=?,
+        location_ar=?, location_en=?, date=?, image=?
+      WHERE id=?
+    `).run(
+      body.title_ar,
+      body.title_en,
+      body.description_ar || null,
+      body.description_en || null,
+      body.location_ar    || null,
+      body.location_en    || null,
+      body.date,
+      imagePath,
+      id,
+    );
+
+    logActivity(req.admin.id, 'edit', body.title_en || body.title_ar);
+    const updated = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+    res.json(envelope(updated));
+  } catch (e) {
+    console.error('Update event error:', e);
+    res.status(500).json(envelope(null, null, e.message));
+  }
+}
+
+router.put('/events/:id',  requireAuth, uploadEvent, eventValidation, updateEvent);
+router.post('/events/:id', requireAuth, uploadEvent, eventValidation, (req, res) => {
+  if (req.query._method === 'PUT') return updateEvent(req, res);
+  res.status(405).json(envelope(null, null, 'Method not allowed'));
+});
+
+// ─── DELETE /api/admin/events/:id ─────────────────────────────────
+router.delete('/events/:id', requireAuth, (req, res) => {
+  const id    = parseInt(req.params.id, 10);
+  const event = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+  if (!event) return res.status(404).json(envelope(null, null, 'Not found'));
+
+  deleteLocal(event.image);
+
+  db.prepare(`DELETE FROM events WHERE id = ?`).run(id);
+  logActivity(req.admin.id, 'delete', event.title_en || event.title_ar);
+  res.json(envelope({ deleted: id }));
+});
+
+// ═══ Contact messages ═════════════════════════════════════════════
+
+// ─── GET /api/admin/messages ──────────────────────────────────────
+router.get('/messages', requireAuth, (req, res) => {
+  const rows = db.prepare(`
+    SELECT * FROM messages
+    ORDER BY is_handled ASC, created_at DESC
+  `).all();
+  res.json(envelope(rows));
+});
+
+// ─── PUT /api/admin/messages/:id/handled ──────────────────────────
+// Body: { is_handled: 0 | 1 }  (defaults to 1)
+router.put('/messages/:id/handled', requireAuth, (req, res) => {
+  const id  = parseInt(req.params.id, 10);
+  const msg = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(id);
+  if (!msg) return res.status(404).json(envelope(null, null, 'Not found'));
+
+  const handled = req.body.is_handled === 0 || req.body.is_handled === '0' ? 0 : 1;
+  db.prepare(`UPDATE messages SET is_handled = ? WHERE id = ?`).run(handled, id);
+  const updated = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(id);
+  res.json(envelope(updated));
 });
 
 module.exports = router;

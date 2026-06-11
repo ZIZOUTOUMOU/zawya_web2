@@ -37,6 +37,23 @@ CREATE INDEX IF NOT EXISTS idx_books_featured   ON books(is_featured);
 CREATE INDEX IF NOT EXISTS idx_books_created    ON books(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_books_language   ON books(language);
 
+-- ─── Events ─────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS events (
+  id              INTEGER  PRIMARY KEY AUTOINCREMENT,
+  title_ar        TEXT     NOT NULL,
+  title_en        TEXT     NOT NULL,
+  description_ar  TEXT,
+  description_en  TEXT,
+  location_ar     TEXT,
+  location_en     TEXT,
+  date            TEXT     NOT NULL,           -- ISO 8601 (e.g. 2026-07-01T18:00:00)
+  image           TEXT,
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_events_date    ON events(date);
+CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at DESC);
+
 -- ─── Categories ─────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS categories (
   id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,6 +69,21 @@ CREATE TABLE IF NOT EXISTS admins (
   password_hash TEXT     NOT NULL,
   created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ─── Contact messages ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS messages (
+  id          INTEGER  PRIMARY KEY AUTOINCREMENT,
+  name        TEXT     NOT NULL,
+  email       TEXT     NOT NULL,
+  phone       TEXT,
+  subject     TEXT,
+  message     TEXT     NOT NULL,
+  is_handled  INTEGER  DEFAULT 0,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_handled ON messages(is_handled);
+CREATE INDEX IF NOT EXISTS idx_messages_created ON messages(created_at DESC);
 
 -- ─── Activity log ───────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS activity_log (

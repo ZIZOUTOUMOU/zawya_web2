@@ -80,6 +80,20 @@ export const getStats         = ()       => api.get(`${BASE}/stats`);
 export const searchBooks      = (q)      => api.get(`${BASE}/search?q=${encodeURIComponent(q)}`);
 export const getRandomBook    = ()       => api.get(`${BASE}/books/random`);
 
+/** Fetch events; pass { upcoming: true } to get future events only (soonest first) */
+export async function getEvents(params = {}) {
+  const q = new URLSearchParams();
+  if (params.upcoming) q.set('upcoming', 'true');
+  q.set('page',  params.page  || 1);
+  q.set('limit', params.limit || 100);
+  return api.get(`${BASE}/events?${q}`);
+}
+
+export const getEvent = (id) => api.get(`${BASE}/events/${id}`);
+
+/** Submit the public contact form */
+export const sendContactMessage = (body) => api.post(`${BASE}/contact`, body);
+
 // ─── Admin API ────────────────────────────────────────────────────
 
 export const adminLogin   = (email, password) => api.post(`${BASE}/admin/login`, { email, password });
@@ -92,6 +106,9 @@ export const adminAddBook     = (fd)          => api.postForm(`${BASE}/admin/boo
 export const adminUpdateBook  = (id, fd)      => api.postForm(`${BASE}/admin/books/${id}?_method=PUT`, fd);
 export const adminDeleteBook  = (id)          => api.delete(`${BASE}/admin/books/${id}`);
 export const adminFetchOL     = (body)        => api.post(`${BASE}/admin/books/fetch-openlibrary`, body);
+export const adminGetMessages = ()            => api.get(`${BASE}/admin/messages`);
+export const adminMarkMessageHandled = (id, isHandled = 1) =>
+  api.put(`${BASE}/admin/messages/${id}/handled`, { is_handled: isHandled });
 
 // ─── Utility ─────────────────────────────────────────────────────
 

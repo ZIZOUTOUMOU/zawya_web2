@@ -24,7 +24,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const UPLOAD_ROOT = process.env.UPLOAD_PATH || './backend/uploads';
 
 // ─── Ensure upload dirs exist ─────────────────────────────────────
-['covers', 'previews', 'pdfs', 'misc'].forEach(sub => {
+['covers', 'previews', 'pdfs', 'events', 'misc'].forEach(sub => {
   const d = path.join(UPLOAD_ROOT, sub);
   if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
 });
@@ -77,6 +77,8 @@ app.use('/uploads', express.static(path.resolve(UPLOAD_ROOT), {
 
 // ─── API routes ───────────────────────────────────────────────────
 app.use('/api',       require('./routes/books'));
+app.use('/api',       require('./routes/events'));
+app.use('/api',       require('./routes/contact'));
 app.use('/api/admin', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 

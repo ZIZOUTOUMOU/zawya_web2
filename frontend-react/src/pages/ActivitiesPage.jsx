@@ -1,55 +1,65 @@
-import { useState } from 'react'
-import { useT } from '../context/LanguageContext'
+import { useState, useEffect, useCallback } from 'react'
+import { useT, useLanguage } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
+import PageLoader from '../components/ui/PageLoader'
+import { getEvents, assetUrl } from '../services/api'
 import styles from './SectionPage.module.css'
 
-const ACTIVITIES = [
-  {
-    id: 1, emoji: '🎉', date: 'يناير ٢٠٢٥',
-    title: 'احتفال المولد النبوي الشريف',
-    desc: 'أضف هنا وصفاً للنشاط أو الفعالية المُقامة في الزاوية.',
-    category: 'ديني',
-  },
-  {
-    id: 2, emoji: '📚', date: 'فبراير ٢٠٢٥',
-    title: 'ندوة في التراث الإسلامي',
-    desc: 'أضف هنا وصفاً للندوة العلمية أو الثقافية.',
-    category: 'علمي',
-  },
-  {
-    id: 3, emoji: '🌿', date: 'مارس ٢٠٢٥',
-    title: 'يوم بيئي في الزاوية',
-    desc: 'أضف هنا وصفاً للنشاط البيئي أو الاجتماعي.',
-    category: 'اجتماعي',
-  },
-  {
-    id: 4, emoji: '🎓', date: 'أبريل ٢٠٢٥',
-    title: 'حفل توزيع شهادات المتخرجين',
-    desc: 'أضف هنا وصفاً لحفل التخرج أو التكريم.',
-    category: 'تعليمي',
-  },
-  {
-    id: 5, emoji: '🍽️', date: 'مايو ٢٠٢٥',
-    title: 'إفطار جماعي في رمضان',
-    desc: 'أضف هنا وصفاً للفعالية الرمضانية.',
-    category: 'ديني',
-  },
-  {
-    id: 6, emoji: '🎨', date: 'يونيو ٢٠٢٥',
-    title: 'معرض فنون تراثية',
-    desc: 'أضف هنا وصفاً لمعرض الفنون أو الحرف.',
-    category: 'ثقافي',
-  },
-]
+/** Pick the field matching the active language, falling back to the other */
+function pick(ev, field, language) {
+  return language === 'ar'
+    ? (ev[`${field}_ar`] || ev[`${field}_en`])
+    : (ev[`${field}_en`] || ev[`${field}_ar`])
+}
+
+/** Format an ISO date for display; Arabic locale uses Eastern Arabic numerals */
+function formatEventDate(iso, language) {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  const locale = language === 'ar' ? 'ar' : 'en-GB'
+  let out = new Intl.DateTimeFormat(locale, {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  }).format(d)
+  if (d.getHours() || d.getMinutes()) {
+    out += ' · ' + new Intl.DateTimeFormat(locale, {
+      hour: 'numeric', minute: '2-digit',
+    }).format(d)
+  }
+  return out
+}
 
 export default function ActivitiesPage() {
   const t = useT()
-  const CATEGORIES = [t('activities.filterAll'), ...new Set(ACTIVITIES.map(a => a.category))]
-  const [filter, setFilter] = useState(t('activities.filterAll'))
+  const { language } = useLanguage()
+  const [events, setEvents]     = useState(null)   // null = loading
+  const [error, setError]       = useState(null)
+  const [showPast, setShowPast] = useState(false)
 
-  const filtered = filter === t('activities.filterAll')
-    ? ACTIVITIES
-    : ACTIVITIES.filter(a => a.category === filter)
+  const load = useCallback(async () => {
+    setEvents(null)
+    setError(null)
+    const res = await getEvents()
+    if (!res.success) {
+      setError(res.error || 'Error')
+      setEvents([])
+      return
+    }
+    setEvents(res.data || [])
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  // Events from today onward count as upcoming, even if their time has passed
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+
+  const upcoming = (events || [])
+    .filter(ev => new Date(ev.date) >= startOfToday)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+
+  const past = (events || [])
+    .filter(ev => new Date(ev.date) < startOfToday)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
 
   return (
     <div>
@@ -63,28 +73,66 @@ export default function ActivitiesPage() {
       <section className={`section ${styles.content}`}>
         <div className="container">
 
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'center' }}>
-            {CATEGORIES.map(c => (
-              <button
-                key={c}
-                className={filter === c ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'}
-                onClick={() => setFilter(c)}
-              >
-                {c}
+          {events === null && <PageLoader />}
+
+          {error && (
+            <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
+              <p style={{ marginBottom: '1.25rem' }}>{t('activities.error')}</p>
+              <button className="btn btn-primary btn-sm" onClick={load}>
+                {t('activities.retry')}
               </button>
-            ))}
-          </div>
+            </div>
+          )}
 
-          <div className={styles.activityGrid}>
-            {filtered.map(act => (
-              <ActivityCard key={act.id} activity={act} />
-            ))}
-          </div>
+          {events !== null && !error && (
+            <>
+              <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+                {t('activities.upcomingHeading')}
+              </h2>
 
-          {filtered.length === 0 && (
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
-              {t('activities.empty')}
-            </p>
+              {upcoming.length === 0 ? (
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
+                  {t('activities.emptyUpcoming')}
+                </p>
+              ) : (
+                <div className={styles.activityGrid}>
+                  {upcoming.map(ev => (
+                    <EventCard key={ev.id} event={ev} language={language} t={t} />
+                  ))}
+                </div>
+              )}
+
+              {past.length > 0 && (
+                <div style={{ marginTop: '3rem' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setShowPast(s => !s)}
+                      aria-expanded={showPast}
+                    >
+                      {showPast
+                        ? t('activities.hidePast')
+                        : t('activities.showPast', {
+                            count: past.length.toLocaleString(language === 'ar' ? 'ar' : 'en'),
+                          })}
+                    </button>
+                  </div>
+
+                  {showPast && (
+                    <>
+                      <h2 style={{ textAlign: 'center', margin: '2rem 0 0.5rem' }}>
+                        {t('activities.pastHeading')}
+                      </h2>
+                      <div className={styles.activityGrid}>
+                        {past.map(ev => (
+                          <EventCard key={ev.id} event={ev} language={language} t={t} past />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           <div className={styles.infoCard} style={{ marginTop: '3rem' }}>
@@ -100,20 +148,25 @@ export default function ActivitiesPage() {
   )
 }
 
-function ActivityCard({ activity: a }) {
+function EventCard({ event: ev, language, t, past = false }) {
+  const title    = pick(ev, 'title', language)
+  const desc     = pick(ev, 'description', language)
+  const location = pick(ev, 'location', language)
+
   return (
-    <div className={styles.activityCard}>
+    <div className={styles.activityCard} style={past ? { opacity: 0.75 } : undefined}>
       <div className={styles.activityImg}>
-        {/* <img src={a.imageUrl} alt={a.title} /> */}
-        <span>{a.emoji}</span>
+        {ev.image
+          ? <img src={assetUrl(ev.image)} alt={t('activities.imageAlt', { title })} loading="lazy" />
+          : <span aria-hidden="true">📅</span>}
       </div>
       <div className={styles.activityBody}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.4rem' }}>
-          <span className={styles.activityDate}>{a.date}</span>
-          <span className="badge">{a.category}</span>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
+          <span className={styles.activityDate}>{formatEventDate(ev.date, language)}</span>
+          {location && <span className="badge">📍 {location}</span>}
         </div>
-        <h3 className={styles.activityTitle}>{a.title}</h3>
-        <p className={styles.activityDesc}>{a.desc}</p>
+        <h3 className={styles.activityTitle}>{title}</h3>
+        {desc && <p className={styles.activityDesc}>{desc}</p>}
       </div>
     </div>
   )

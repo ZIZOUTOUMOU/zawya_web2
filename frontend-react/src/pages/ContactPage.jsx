@@ -1,29 +1,69 @@
 import { useState } from 'react'
 import { useT } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
+import { sendContactMessage } from '../services/api'
 import styles from './SectionPage.module.css'
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_RE = /^[+\d][\d\s\-().]{4,29}$/
 
 export default function ContactPage() {
   const t = useT()
   const [form, setForm]     = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [status, setStatus] = useState('idle')
   const [error,  setError]  = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   const handleChange = e => {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+    const { name, value } = e.target
+    setForm(f => ({ ...f, [name]: value }))
+    setFieldErrors(fe => (fe[name] ? { ...fe, [name]: null } : fe))
+  }
+
+  const validate = () => {
+    const fe = {}
+    if (!form.name.trim())                              fe.name    = t('contact.errName')
+    if (!EMAIL_RE.test(form.email.trim()))              fe.email   = t('contact.errEmail')
+    if (form.phone.trim() && !PHONE_RE.test(form.phone.trim())) fe.phone = t('contact.errPhone')
+    if (!form.subject)                                  fe.subject = t('contact.errSubject')
+    if (form.message.trim().length < 10)                fe.message = t('contact.errMessage')
+    return fe
   }
 
   const handleSubmit = async e => {
     e.preventDefault()
-    setStatus('sending')
     setError('')
 
-    const subject = encodeURIComponent(form.subject || '')
-    const body    = encodeURIComponent(
-      `${t('contact.formName')}: ${form.name}\n${t('contact.formEmail')}: ${form.email}\n${t('contact.formPhone')}: ${form.phone}\n\n${form.message}`
-    )
-    window.location.href = `mailto:zawiya@example.com?subject=${subject}&body=${body}`
-    setTimeout(() => setStatus('success'), 400)
+    const fe = validate()
+    if (Object.keys(fe).length) { setFieldErrors(fe); return }
+    setFieldErrors({})
+
+    setStatus('sending')
+    const res = await sendContactMessage({
+      name:    form.name.trim(),
+      email:   form.email.trim(),
+      phone:   form.phone.trim(),
+      subject: form.subject,
+      message: form.message.trim(),
+    })
+
+    if (res.success) {
+      setStatus('success')
+      return
+    }
+
+    setStatus('idle')
+    if (Array.isArray(res.details) && res.details.length) {
+      // Server-side validation: map field errors to translated copy
+      const serverFe = {}
+      const KEYS = { name: 'errName', email: 'errEmail', phone: 'errPhone', subject: 'errSubject', message: 'errMessage' }
+      res.details.forEach(d => { if (KEYS[d.field]) serverFe[d.field] = t(`contact.${KEYS[d.field]}`) })
+      setFieldErrors(serverFe)
+    } else if ((res.error || '').includes('Too many')) {
+      setError(t('contact.errRateLimit'))
+    } else {
+      setError(t('contact.errGeneric'))
+    }
   }
 
   return (
@@ -114,8 +154,10 @@ export default function ContactPage() {
                           className="form-input"
                           value={form.name} onChange={handleChange}
                           placeholder={t('contact.namePlaceholder')}
+                          aria-invalid={!!fieldErrors.name}
                           required
                         />
+                        <FieldError msg={fieldErrors.name} />
                       </div>
                       <div className="form-group">
                         <label className="form-label" htmlFor="phone">{t('contact.formPhone')}</label>
@@ -124,8 +166,10 @@ export default function ContactPage() {
                           className="form-input"
                           value={form.phone} onChange={handleChange}
                           placeholder="+213 XX XX XX XX"
+                          aria-invalid={!!fieldErrors.phone}
                           dir="ltr"
                         />
+                        <FieldError msg={fieldErrors.phone} />
                       </div>
                     </div>
 
@@ -136,9 +180,11 @@ export default function ContactPage() {
                         className="form-input"
                         value={form.email} onChange={handleChange}
                         placeholder="example@mail.com"
+                        aria-invalid={!!fieldErrors.email}
                         dir="ltr"
                         required
                       />
+                      <FieldError msg={fieldErrors.email} />
                     </div>
 
                     <div className="form-group">
@@ -147,6 +193,7 @@ export default function ContactPage() {
                         id="subject" name="subject"
                         className="form-select"
                         value={form.subject} onChange={handleChange}
+                        aria-invalid={!!fieldErrors.subject}
                         required
                       >
                         <option value="">{t('contact.subjectPlaceholder')}</option>
@@ -158,6 +205,7 @@ export default function ContactPage() {
                         <option>{t('contact.subjectDonate')}</option>
                         <option>{t('contact.subjectOther')}</option>
                       </select>
+                      <FieldError msg={fieldErrors.subject} />
                     </div>
 
                     <div className="form-group">
@@ -168,8 +216,10 @@ export default function ContactPage() {
                         value={form.message} onChange={handleChange}
                         placeholder={t('contact.messagePlaceholder')}
                         rows={5}
+                        aria-invalid={!!fieldErrors.message}
                         required
                       />
+                      <FieldError msg={fieldErrors.message} />
                     </div>
 
                     {error && (
@@ -199,6 +249,15 @@ export default function ContactPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+function FieldError({ msg }) {
+  if (!msg) return null
+  return (
+    <p role="alert" style={{ color: '#dc2626', fontSize: '0.82rem', marginTop: '0.35rem', marginBottom: 0 }}>
+      {msg}
+    </p>
   )
 }
 

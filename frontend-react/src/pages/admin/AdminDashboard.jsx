@@ -6,7 +6,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import {
   adminMe, adminLogout, adminGetStats, adminGetBooks,
   adminGetLogs, adminDeleteBook, adminAddBook, adminUpdateBook,
-  adminFetchOL, getCategories, assetUrl,
+  adminFetchOL, adminGetMessages, adminMarkMessageHandled,
+  getCategories, assetUrl,
 } from '../../services/api'
 import PageLoader from '../../components/ui/PageLoader'
 import styles from './Admin.module.css'
@@ -19,6 +20,8 @@ export default function AdminDashboard() {
   const [books,       setBooks]       = useState([])
   const [filtered,    setFiltered]    = useState([])
   const [logs,        setLogs]        = useState([])
+  const [messages,    setMessages]    = useState([])
+  const [tab,         setTab]         = useState('books')
   const [categories,  setCategories]  = useState([])
   const [search,      setSearch]      = useState('')
   const [modalBook,   setModalBook]   = useState(null)  // null = closed, {} = new, {...} = edit
@@ -37,12 +40,13 @@ export default function AdminDashboard() {
   }, [])
 
   const loadAll = async () => {
-    const [statsR, booksR, logsR, catsR] = await Promise.all([
-      adminGetStats(), adminGetBooks(), adminGetLogs(), getCategories(),
+    const [statsR, booksR, logsR, msgsR, catsR] = await Promise.all([
+      adminGetStats(), adminGetBooks(), adminGetLogs(), adminGetMessages(), getCategories(),
     ])
     if (statsR.success) setStats(statsR.data)
     if (booksR.success) { setBooks(booksR.data); setFiltered(booksR.data) }
     if (logsR.success)  setLogs(logsR.data)
+    if (msgsR.success)  setMessages(msgsR.data)
     if (catsR.success)  setCategories(catsR.data)
     setLoading(false)
   }
@@ -88,6 +92,18 @@ export default function AdminDashboard() {
     else showToast(r.error || 'فشل', 'error')
   }
 
+  const toggleHandled = async (msg) => {
+    const r = await adminMarkMessageHandled(msg.id, msg.is_handled ? 0 : 1)
+    if (r.success) {
+      setMessages(ms => ms.map(m => (m.id === msg.id ? r.data : m)))
+      showToast(r.data.is_handled ? 'تمت معالجة الرسالة ✓' : 'أُعيد فتح الرسالة', 'success')
+    } else {
+      showToast(r.error || 'فشل التحديث', 'error')
+    }
+  }
+
+  const unhandledCount = messages.filter(m => !m.is_handled).length
+
   if (loading) return <PageLoader />
 
   return (
@@ -122,6 +138,28 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* ── Tabs ── */}
+        <div style={{ display: 'flex', gap: '0.5rem', margin: '1.5rem 0 0.5rem' }}>
+          <button
+            className={tab === 'books' ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'}
+            onClick={() => setTab('books')}
+          >
+            📚 الكتب
+          </button>
+          <button
+            className={tab === 'messages' ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'}
+            onClick={() => setTab('messages')}
+          >
+            ✉️ الرسائل{unhandledCount > 0 ? ` (${unhandledCount})` : ''}
+          </button>
+        </div>
+
+        {tab === 'messages' && (
+          <MessagesPanel messages={messages} onToggleHandled={toggleHandled} />
+        )}
+
+        {tab === 'books' && (
+        <>
         {/* ── Toolbar ── */}
         <div className={styles.toolbar}>
           <h2 className={styles.toolbarTitle}>الكتب</h2>
@@ -218,6 +256,8 @@ export default function AdminDashboard() {
             </li>
           ))}
         </ul>
+        </>
+        )}
 
       </main>
 
@@ -451,6 +491,67 @@ function FormField({ name, label, type = 'text', required = false, defaultValue 
         step={step}
         dir={type === 'email' || type === 'url' || name === 'isbn10' || name === 'isbn13' ? 'ltr' : undefined}
       />
+    </div>
+  )
+}
+
+// ─── Messages panel ────────────────────────────────────────────────
+function MessagesPanel({ messages, onToggleHandled }) {
+  if (messages.length === 0) {
+    return (
+      <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 1rem' }}>
+        لا توجد رسائل بعد.
+      </p>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+      {messages.map(m => (
+        <div
+          key={m.id}
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '1.25rem',
+            opacity: m.is_handled ? 0.65 : 1,
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <strong style={{ color: 'var(--color-primary)' }}>{m.name}</strong>
+              <a href={`mailto:${m.email}`} dir="ltr" style={{ fontSize: '0.85rem', color: 'var(--color-accent-dark)' }}>
+                {m.email}
+              </a>
+              {m.phone && <span dir="ltr" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{m.phone}</span>}
+              <span className="badge">{m.is_handled ? 'تمت المعالجة' : 'جديدة'}</span>
+            </div>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+              {new Date(m.created_at + ' UTC').toLocaleString('ar-EG')}
+            </span>
+          </div>
+
+          {m.subject && (
+            <p style={{ fontWeight: 700, margin: '0.75rem 0 0.25rem', fontSize: '0.95rem' }}>{m.subject}</p>
+          )}
+          <p style={{ color: 'var(--text-soft)', whiteSpace: 'pre-wrap', margin: '0.25rem 0 1rem', lineHeight: 1.7 }}>
+            {m.message}
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+            <a className="btn btn-ghost btn-sm" href={`mailto:${m.email}?subject=${encodeURIComponent('رد: ' + (m.subject || ''))}`}>
+              رد بالبريد
+            </a>
+            <button
+              className={m.is_handled ? 'btn btn-ghost btn-sm' : 'btn btn-primary btn-sm'}
+              onClick={() => onToggleHandled(m)}
+            >
+              {m.is_handled ? 'إعادة فتح' : '✓ تمت المعالجة'}
+            </button>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

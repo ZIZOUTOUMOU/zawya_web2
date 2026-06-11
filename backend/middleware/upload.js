@@ -13,7 +13,7 @@ const crypto  = require('crypto');
 const UPLOAD_ROOT = process.env.UPLOAD_PATH || './backend/uploads';
 
 // Ensure upload directories exist
-['covers', 'previews', 'pdfs', 'misc'].forEach(sub => {
+['covers', 'previews', 'pdfs', 'events', 'misc'].forEach(sub => {
   const dir = path.join(UPLOAD_ROOT, sub);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
@@ -26,6 +26,7 @@ const storage = multer.diskStorage({
     else if (file.fieldname === 'first_page_img' ||
              file.fieldname === 'last_page_img')                        sub = 'previews';
     else if (file.fieldname === 'pdf_file')                             sub = 'pdfs';
+    else if (file.fieldname === 'image')                                sub = 'events';
 
     const dest = path.join(UPLOAD_ROOT, sub);
     if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
@@ -45,6 +46,7 @@ const ALLOWED = {
   first_page_img: ['image/jpeg', 'image/png', 'image/webp'],
   last_page_img:  ['image/jpeg', 'image/png', 'image/webp'],
   pdf_file:       ['application/pdf'],
+  image:          ['image/jpeg', 'image/png', 'image/webp'],
 };
 
 const fileFilter = (req, file, cb) => {
@@ -74,4 +76,9 @@ const uploadBook = upload.fields([
   { name: 'pdf_file',       maxCount: 1 },
 ]);
 
-module.exports = { uploadBook, UPLOAD_ROOT };
+/** Multer middleware for event image upload */
+const uploadEvent = upload.fields([
+  { name: 'image', maxCount: 1 },
+]);
+
+module.exports = { uploadBook, uploadEvent, UPLOAD_ROOT };
