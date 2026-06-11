@@ -276,7 +276,7 @@ export default function LibraryPage() {
                         checked={category === c.name}
                         onChange={() => { setCategory(category === c.name ? '' : c.name); setPage(1) }}
                       />
-                      <span>{c.name}</span>
+                      <span>{t.tCat(c.name)}</span>
                     </label>
                   ))}
                   {category && (
@@ -362,7 +362,7 @@ export default function LibraryPage() {
                 <div className={styles.chips}>
                   {debouncedSearch && <Chip label={`"${debouncedSearch}"`} onRemove={() => { setSearch(''); setPage(1) }} />}
                   {debouncedAuthor && <Chip label={t('library.chipAuthor', { author: debouncedAuthor })} onRemove={() => { setAuthor(''); setPage(1) }} />}
-                  {category  && <Chip label={category}  onRemove={() => { setCategory(''); setPage(1) }} />}
+                  {category  && <Chip label={t.tCat(category)}  onRemove={() => { setCategory(''); setPage(1) }} />}
                   {language  && <Chip label={language}  onRemove={() => { setLanguage(''); setPage(1) }} />}
                   {yearFrom  && <Chip label={t('library.chipFrom', { year: yearFrom })}  onRemove={() => { setYearFrom(''); setPage(1) }} />}
                   {yearTo    && <Chip label={t('library.chipTo', { year: yearTo })}      onRemove={() => { setYearTo('');   setPage(1) }} />}
@@ -545,7 +545,7 @@ function BookCard({ book, delay }) {
           </Link>
         </p>
         <div className={styles.meta}>
-          <span className="badge">{book.category || t('library.categoryGeneral')}</span>
+          <span className="badge">{t.tCat(book.category) || t('library.categoryGeneral')}</span>
           {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{book.publication_year}</span>}
           {rating > 0 && (
@@ -605,7 +605,7 @@ function BookCardList({ book, delay }) {
           </Link>
         </p>
         <div className={styles.bookCardListMeta}>
-          <span className="badge">{book.category || t('library.categoryGeneral')}</span>
+          <span className="badge">{t.tCat(book.category) || t('library.categoryGeneral')}</span>
           {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && (
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{book.publication_year}</span>

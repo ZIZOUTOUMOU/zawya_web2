@@ -144,7 +144,7 @@ export default function BookDetailPage() {
 
         {/* ── Info ── */}
         <div className={styles.info}>
-          {book.category && <span className="badge" style={{ marginBottom: '0.5rem' }}>{book.category}</span>}
+          {book.category && <span className="badge" style={{ marginBottom: '0.5rem' }}>{t.tCat(book.category)}</span>}
           {book.call_number && (
             <span style={{
               display: 'inline-block', background: 'var(--color-accent)',

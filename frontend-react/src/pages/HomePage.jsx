@@ -227,7 +227,7 @@ function BookCard({ book, delay, t }) {
         <h4 className={styles.bookTitle}>{book.title}</h4>
         <p className={styles.bookAuthor}>{book.author}</p>
         {book.category && (
-          <span className="badge">{book.category}</span>
+          <span className="badge">{t.tCat(book.category)}</span>
         )}
       </div>
     </Link>

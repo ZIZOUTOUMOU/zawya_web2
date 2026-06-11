@@ -53,5 +53,13 @@ export function useT() {
     }
     return typeof val === 'string' ? val : key
   }, [language])
-  return t
+
+  /** Translate a category name from its Arabic DB value */
+  const tCat = useCallback((arabicName) => {
+    if (!arabicName) return ''
+    if (language === 'ar') return arabicName
+    return translations.en?.cats?.[arabicName] || arabicName
+  }, [language])
+
+  return Object.assign(t, { tCat })
 }
