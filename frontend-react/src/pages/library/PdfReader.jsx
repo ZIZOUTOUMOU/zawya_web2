@@ -153,9 +153,9 @@ export default function PdfReader({ pdfUrl, onClose }) {
           {/* Zoom controls */}
           <div className={styles.toolbarGroup}>
             <span className={styles.zoomLabel}>{t('pdfReader.zoom')}</span>
-            <button className={styles.zoomBtn} onClick={zoomOut} disabled={scale <= 0.5 || fitWidth}>−</button>
+            <button className={styles.zoomBtn} onClick={zoomOut} disabled={scale <= 0.5 || fitWidth} aria-label={t('pdfReader.zoomOut')}>−</button>
             <span className={styles.zoomValue}>{fitWidth ? t('pdfReader.fitLabel') : `${Math.round(scale * 100)}%`}</span>
-            <button className={styles.zoomBtn} onClick={zoomIn}  disabled={scale >= 2.0 || fitWidth}>+</button>
+            <button className={styles.zoomBtn} onClick={zoomIn}  disabled={scale >= 2.0 || fitWidth} aria-label={t('pdfReader.zoomIn')}>+</button>
             <button
               className={`${styles.fitBtn} ${fitWidth ? styles.fitBtnActive : ''}`}
               onClick={() => setFitWidth(fw => !fw)}
@@ -165,7 +165,7 @@ export default function PdfReader({ pdfUrl, onClose }) {
           </div>
 
           {/* Close */}
-          <button className={styles.closeBtn} onClick={onClose} title={t('pdfReader.close')}>✕</button>
+          <button className={styles.closeBtn} onClick={onClose} title={t('pdfReader.close')} aria-label={t('pdfReader.close')}>✕</button>
         </div>
 
         {/* ── Canvas area ── */}

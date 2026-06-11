@@ -48,6 +48,9 @@ export default function AdminDashboard() {
     if (logsR.success)  setLogs(logsR.data)
     if (msgsR.success)  setMessages(msgsR.data)
     if (catsR.success)  setCategories(catsR.data)
+    if (!statsR.success || !booksR.success || !msgsR.success) {
+      showToast('تعذّر تحميل بعض البيانات — حدّث الصفحة', 'error')
+    }
     setLoading(false)
   }
 

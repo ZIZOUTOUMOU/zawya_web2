@@ -204,6 +204,12 @@ ul, ol { list-style: none; }
 
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
+
+/* Keyboard focus ring for every interactive element (links, icon buttons, cards) */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 .btn:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;

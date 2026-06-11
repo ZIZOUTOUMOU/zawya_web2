@@ -213,7 +213,8 @@
   transform: translateY(-12px);
   opacity: 0;
   pointer-events: none;
-  transition: transform 200ms ease, opacity 200ms ease;
+  visibility: hidden;   /* keep links out of the tab order while closed */
+  transition: transform 200ms ease, opacity 200ms ease, visibility 200ms;
   box-shadow: var(--shadow);
 }
 
@@ -221,6 +222,7 @@
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 
 .mobileLink {

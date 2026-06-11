@@ -22,9 +22,11 @@ function removeStoredId(id) {
 
 export default function ReadingListPage() {
   const t = useT()
-  const [ids,     setIds]     = useState(getStoredIds)
-  const [books,   setBooks]   = useState([])
-  const [loading, setLoading] = useState(false)
+  const [ids,       setIds]       = useState(getStoredIds)
+  const [books,     setBooks]     = useState([])
+  const [loading,   setLoading]   = useState(false)
+  const [loadError, setLoadError] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     document.title = `${t('readingList.title')} — ${t('site.name')}`
@@ -36,15 +38,18 @@ export default function ReadingListPage() {
       return
     }
     setLoading(true)
+    setLoadError(false)
     Promise.allSettled(ids.map(id => getBook(id)))
       .then(results => {
         const loaded = results
           .filter(r => r.status === 'fulfilled' && r.value?.success)
           .map(r => r.value.data)
         setBooks(loaded)
+        // Saved IDs exist but none could be fetched → connection problem or removed books
+        if (loaded.length === 0) setLoadError(true)
       })
       .finally(() => setLoading(false))
-  }, [ids])
+  }, [ids, reloadKey])
 
   const handleRemove = (id) => {
     removeStoredId(id)
@@ -78,8 +83,14 @@ export default function ReadingListPage() {
             </div>
           ) : ids.length === 0 ? (
             <EmptyState />
-          ) : books.length === 0 ? (
-            <EmptyState />
+          ) : loadError ? (
+            <div className={libStyles.empty} role="alert">
+              <span aria-hidden="true">⚠️</span>
+              <p>{t('readingList.loadError')}</p>
+              <button className="btn btn-primary" onClick={() => setReloadKey(k => k + 1)}>
+                {t('readingList.retry')}
+              </button>
+            </div>
           ) : (
             <div className={libStyles.bookGrid}>
               {books.map((book, i) => (
@@ -152,7 +163,7 @@ function ReadingListCard({ book, delay, onRemove }) {
           </Link>
         </p>
         <div className={libStyles.meta}>
-          <span className="badge">{book.category || 'عام'}</span>
+          <span className="badge">{book.category || t('library.categoryGeneral')}</span>
           {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && (
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>

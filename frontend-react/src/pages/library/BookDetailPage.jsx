@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getBook, getRelatedBooks, assetUrl } from '../../services/api'
-import { useT } from '../../context/LanguageContext'
+import { useT, useLanguage } from '../../context/LanguageContext'
 import PageLoader from '../../components/ui/PageLoader'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import PdfReader from './PdfReader'
@@ -32,6 +32,7 @@ export default function BookDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const t = useT()
+  const { language } = useLanguage()
 
   const [book,         setBook]         = useState(null)
   const [loading,      setLoading]      = useState(true)
@@ -115,8 +116,9 @@ export default function BookDetailPage() {
 
   const cover      = assetUrl(book.cover_image)
   const rating     = Math.round(parseFloat(book.rating) || 0)
+  const dateLocale = language === 'ar' ? 'ar' : 'en-GB'
   const addedDate  = book.created_at
-    ? new Date(book.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })
+    ? new Date(book.created_at).toLocaleDateString(dateLocale, { year: 'numeric', month: 'long', day: 'numeric' })
     : ''
   const olLink     = book.open_library_id ? `https://openlibrary.org/books/${book.open_library_id}` : null
   const gutLink    = book.gutenberg_id    ? `https://www.gutenberg.org/ebooks/${book.gutenberg_id}`   : null
@@ -184,7 +186,7 @@ export default function BookDetailPage() {
             <MetaRow label="ISBN-10"                   value={book.isbn10       ? <code>{book.isbn10}</code>  : '—'} />
             <MetaRow label="ISBN-13"                   value={book.isbn13       ? <code>{book.isbn13}</code>  : '—'} />
             <MetaRow label={t('bookDetail.pages')}     value={book.total_pages  || '—'} />
-            <MetaRow label="النشر"                     value={book.publication_year || '—'} />
+            <MetaRow label={t('bookDetail.published')}  value={book.publication_year || '—'} />
             <MetaRow label={t('bookDetail.language')}  value={book.language     || '—'} />
             <MetaRow label={t('bookDetail.publisher')} value={book.publisher    || '—'} />
             <MetaRow label={t('bookDetail.license')}   value={book.license_type || t('bookDetail.publicDomain')} />
@@ -265,7 +267,7 @@ export default function BookDetailPage() {
         <div className="lightbox" onClick={() => setLightbox(null)}>
           <div className="lightbox-overlay" />
           <div className={styles.lbContent} onClick={e => e.stopPropagation()}>
-            <button className="lightbox-close" onClick={() => setLightbox(null)}>×</button>
+            <button className="lightbox-close" onClick={() => setLightbox(null)} aria-label={t('bookDetail.closePreview')}>×</button>
 
             {lightbox.pages.length > 1 && (
               <button

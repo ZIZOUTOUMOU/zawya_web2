@@ -9,12 +9,14 @@ export default function HomePage() {
   const [stats, setStats] = useState(null)
   const [recentBooks, setRecentBooks] = useState([])
   const [loading, setLoading] = useState(true)
+  const [booksError, setBooksError] = useState(false)
 
   useEffect(() => {
     Promise.all([getStats(), getRecentBooks()])
       .then(([statsRes, booksRes]) => {
         if (statsRes.success) setStats(statsRes.data)
         if (booksRes.success) setRecentBooks(booksRes.data.slice(0, 4))
+        else setBooksError(true)
       })
       .finally(() => setLoading(false))
   }, [])
@@ -135,7 +137,7 @@ export default function HomePage() {
             </div>
           ) : (
             <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>
-              {t('home.emptyBooks')}
+              {booksError ? t('home.errorBooks') : t('home.emptyBooks')}
             </p>
           )}
         </div>

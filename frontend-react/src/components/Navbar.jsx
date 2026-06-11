@@ -87,8 +87,8 @@ export default function Navbar() {
             </svg>
           </div>
           <div className={styles.brandText}>
-            <span className={styles.brandName}>الزاوية</span>
-            <span className={styles.brandSub}>المركز الثقافي والتعليمي</span>
+            <span className={styles.brandName}>{t('site.name')}</span>
+            <span className={styles.brandSub}>{t('site.subtitle')}</span>
           </div>
         </Link>
 

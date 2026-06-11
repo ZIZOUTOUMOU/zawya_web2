@@ -41,6 +41,8 @@ export default function LibraryPage() {
   const [total,       setTotal]       = useState(0)
   const [categories,  setCategories]  = useState([])
   const [loading,     setLoading]     = useState(true)
+  const [loadError,   setLoadError]   = useState(false)
+  const [reloadKey,   setReloadKey]   = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [viewMode,    setViewMode]    = useState(() => localStorage.getItem('zawiya_library_view') || 'grid')
 
@@ -88,6 +90,7 @@ export default function LibraryPage() {
   // Fetch books whenever filters change
   useEffect(() => {
     setLoading(true)
+    setLoadError(false)
     const params = {
       search: debouncedSearch,
       author: debouncedAuthor,
@@ -116,10 +119,14 @@ export default function LibraryPage() {
         if (r.success) {
           setBooks(r.data)
           setTotal(r.meta?.total || 0)
+        } else {
+          setBooks([])
+          setTotal(0)
+          setLoadError(true)
         }
       })
       .finally(() => setLoading(false))
-  }, [debouncedSearch, debouncedAuthor, category, language, yearFrom, yearTo, sort, page])
+  }, [debouncedSearch, debouncedAuthor, category, language, yearFrom, yearTo, sort, page, reloadKey])
 
   const discoverRandom = async () => {
     setRandomLoading(true)
@@ -368,9 +375,17 @@ export default function LibraryPage() {
                     ))}
                   </div>
                 )
+              ) : loadError ? (
+                <div className={styles.empty} role="alert">
+                  <span aria-hidden="true">⚠️</span>
+                  <p>{t('library.loadError')}</p>
+                  <button className="btn btn-primary" onClick={() => setReloadKey(k => k + 1)}>
+                    {t('library.retry')}
+                  </button>
+                </div>
               ) : books.length === 0 ? (
                 <div className={styles.empty}>
-                  <span>📚</span>
+                  <span aria-hidden="true">📚</span>
                   <p>{debouncedAuthor
                     ? t('library.noResultsAuthor')
                     : t('library.noResults')}</p>
@@ -397,6 +412,7 @@ export default function LibraryPage() {
                 <div className="pagination">
                   <button
                     disabled={page === 1}
+                    aria-label={t('library.prevPage')}
                     onClick={() => { setPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                   >›</button>
                   {getPaginationRange(page, totalPages).map((p, i) =>
@@ -412,6 +428,7 @@ export default function LibraryPage() {
                   )}
                   <button
                     disabled={page === totalPages}
+                    aria-label={t('library.nextPage')}
                     onClick={() => { setPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                   >‹</button>
                 </div>
@@ -438,10 +455,15 @@ function FilterGroup({ label, children }) {
 }
 
 function Chip({ label, onRemove }) {
+  const t = useT()
   return (
     <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff', gap: '0.4rem', display: 'inline-flex', alignItems: 'center' }}>
       {label}
-      <button onClick={onRemove} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
+      <button
+        onClick={onRemove}
+        aria-label={t('library.removeFilter', { label })}
+        style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}
+      >×</button>
     </span>
   )
 }
@@ -495,7 +517,7 @@ function BookCard({ book, delay }) {
         )}
         <div className={styles.quickActions}>
           {(book.first_page_img || book.last_page_img) && (
-            <span className={styles.previewBadge} title="يوجد معاينة للصفحات">👁</span>
+            <span className={styles.previewBadge} title={t('library.previewAvailable')} aria-label={t('library.previewAvailable')}>👁</span>
           )}
         </div>
       </div>
@@ -511,7 +533,7 @@ function BookCard({ book, delay }) {
           </Link>
         </p>
         <div className={styles.meta}>
-          <span className="badge">{book.category || 'عام'}</span>
+          <span className="badge">{book.category || t('library.categoryGeneral')}</span>
           {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{book.publication_year}</span>}
           {rating > 0 && (
@@ -571,7 +593,7 @@ function BookCardList({ book, delay }) {
           </Link>
         </p>
         <div className={styles.bookCardListMeta}>
-          <span className="badge">{book.category || 'عام'}</span>
+          <span className="badge">{book.category || t('library.categoryGeneral')}</span>
           {book.call_number && <span className="badge" style={{ background: 'var(--color-accent)', color: '#fff' }}>{book.call_number}</span>}
           {book.publication_year && (
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{book.publication_year}</span>
