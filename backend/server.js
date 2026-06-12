@@ -50,6 +50,7 @@ app.use(cors({
     if (!origin)                         return cb(null, true);
     if (NODE_ENV !== 'production')       return cb(null, true);   // allow all in dev
     if (ALLOWED.includes(origin))        return cb(null, true);
+    if (/\.zawya-web2\.pages\.dev$/.test(origin)) return cb(null, true);
     cb(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,   // allow cookies (JWT)
