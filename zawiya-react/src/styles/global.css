@@ -108,6 +108,8 @@ body {
   color: var(--text);
   direction: rtl;
   text-align: right;         /* Arabic text flows right-to-left */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background var(--transition-slow), color var(--transition-slow);
@@ -141,7 +143,7 @@ a {
 }
 a:hover { color: var(--color-accent-dark); }
 
-img, svg { max-width: 100%; display: block; }
+img, svg, video, iframe { max-width: 100%; display: block; }
 
 ul, ol { list-style: none; }
 
@@ -212,6 +214,7 @@ ul, ol { list-style: none; }
   cursor: not-allowed;
   transform: none;
 }
+.btn { min-height: 44px; }
 
 .btn-primary {
   background: var(--color-primary);
@@ -316,7 +319,8 @@ ul, ol { list-style: none; }
 .toast {
   position: fixed;
   bottom: 1.5rem;
-  left: 1.5rem; /* LTR: left — but RTL mirrors this to visual left */
+  left: 1.5rem;
+  right: 1.5rem;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-right: 4px solid var(--color-accent);
@@ -324,7 +328,8 @@ ul, ol { list-style: none; }
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   z-index: 200;
-  max-width: 320px;
+  max-width: min(320px, calc(100vw - 2rem));
+  word-break: break-word;
   animation: slideInToast 200ms ease;
 }
 .toast.error   { border-right-color: #dc2626; }
@@ -481,7 +486,7 @@ ul, ol { list-style: none; }
   border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 16px;
   color: var(--text);
   direction: rtl;
   text-align: right;

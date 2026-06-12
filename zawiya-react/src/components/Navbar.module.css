@@ -223,6 +223,8 @@
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
+  max-height: calc(100vh - var(--header-height) - var(--space-lg));
+  overflow-y: auto;
 }
 
 .mobileLink {
