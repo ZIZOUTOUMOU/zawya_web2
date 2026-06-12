@@ -300,25 +300,6 @@
   .toolbar { flex-direction: column; align-items: stretch; }
 }
 
-/* ─── Form grid collapse ─── */
-.formGrid2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-.formGrid3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-@media (max-width: 640px) {
-  .formGrid2,
-  .formGrid3 { grid-template-columns: 1fr; }
-}
-
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }

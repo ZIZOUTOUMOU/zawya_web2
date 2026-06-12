@@ -327,13 +327,13 @@ function BookFormModal({ book, categories, onClose, onSaved, onError }) {
           </div>
 
           {/* Row: title + author */}
-          <div className={styles.formGrid2}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <FormField name="title" label="العنوان *" required defaultValue={book.title || ''} />
             <FormField name="author" label="المؤلف *" required defaultValue={book.author || ''} />
           </div>
 
           {/* Row: category + language */}
-          <div className={styles.formGrid2}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div className="form-group">
               <label className="form-label">التصنيف *</label>
               <input
@@ -358,14 +358,14 @@ function BookFormModal({ book, categories, onClose, onSaved, onError }) {
           </div>
 
           {/* Row: isbn10 + isbn13 + year */}
-          <div className={styles.formGrid3}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <FormField name="isbn10"           label="ISBN-10"  defaultValue={book.isbn10 || ''} />
             <FormField name="isbn13"           label="ISBN-13"  defaultValue={book.isbn13 || ''} />
             <FormField name="publication_year" label="سنة النشر" type="number" defaultValue={book.publication_year || ''} />
           </div>
 
           {/* Row: pages + publisher + license */}
-          <div className={styles.formGrid3}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <FormField name="total_pages" label="الصفحات"   type="number" defaultValue={book.total_pages || ''} />
             <FormField name="publisher"   label="الناشر"    defaultValue={book.publisher || ''} />
             <div className="form-group">
@@ -379,7 +379,7 @@ function BookFormModal({ book, categories, onClose, onSaved, onError }) {
           </div>
 
           {/* Row: rating + gutenberg + checkboxes */}
-          <div className={styles.formGrid3}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <FormField name="rating"      label="التقييم (0-5)" type="number" step="0.1" defaultValue={book.rating || '0'} />
             <FormField name="gutenberg_id" label="Gutenberg ID" defaultValue={book.gutenberg_id || ''} />
             <div className="form-group">
@@ -396,7 +396,7 @@ function BookFormModal({ book, categories, onClose, onSaved, onError }) {
           </div>
 
           {/* Cover image URL + upload */}
-          <div className={styles.formGrid2}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <FormField name="cover_image_url" label="رابط صورة الغلاف" type="url" defaultValue={book.cover_image || ''} placeholder="https://…" />
             <div className="form-group">
               <label className="form-label">رفع غلاف (jpg/png/webp)</label>
@@ -405,7 +405,7 @@ function BookFormModal({ book, categories, onClose, onSaved, onError }) {
           </div>
 
           {/* Preview images */}
-          <div className={styles.formGrid2}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div className="form-group">
               <label className="form-label">صورة الصفحة الأولى</label>
               <input type="file" name="first_page_img" accept="image/*" className="form-input" />
