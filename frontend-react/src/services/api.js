@@ -7,6 +7,10 @@
 
 const BASE = import.meta.env.VITE_API_URL || '/api';
 
+// Origin that serves /uploads/* (the API host). Empty string = same origin,
+// which is the case in dev (Vite proxy) and when Express serves the frontend.
+const API_ORIGIN = BASE.replace(/\/api\/?$/, '');
+
 /**
  * Core fetch wrapper — always returns the API envelope:
  * { success, data, meta, error }
@@ -112,11 +116,11 @@ export const adminMarkMessageHandled = (id, isHandled = 1) =>
 
 // ─── Utility ─────────────────────────────────────────────────────
 
-/** Build the full URL for a stored asset */
+/** Build the full URL for a stored asset (uploads live on the API host) */
 export function assetUrl(path) {
   if (!path) return '';
   if (/^https?:\/\//i.test(path)) return path;
-  return path.startsWith('/') ? path : '/' + path;
+  return API_ORIGIN + (path.startsWith('/') ? path : '/' + path);
 }
 
 /** Star rating HTML helper */
