@@ -19,15 +19,20 @@ const db     = require('./db');
 const JSON_PATH = path.join(__dirname, 'extracted_books.json');
 
 async function auto() {
-  const data = JSON.parse(fs.readFileSync(JSON_PATH, 'utf-8'));
-  const { categories } = data;
+  // The catalog JSON is ~1 MB — only read/parse it when a table is empty
+  let data = null;
+  const loadCatalog = () => {
+    if (!data) data = JSON.parse(fs.readFileSync(JSON_PATH, 'utf-8'));
+    return data;
+  };
 
   // ── Categories ──────────────────────────────────────────────────
-  const catInsert = db.prepare(
-    `INSERT OR IGNORE INTO categories (name, slug, color) VALUES (?, ?, ?)`
-  );
-  let catCount = db.prepare(`SELECT COUNT(*) AS n FROM categories`).get().n;
+  const catCount = db.prepare(`SELECT COUNT(*) AS n FROM categories`).get().n;
   if (catCount === 0) {
+    const { categories } = loadCatalog();
+    const catInsert = db.prepare(
+      `INSERT OR IGNORE INTO categories (name, slug, color) VALUES (?, ?, ?)`
+    );
     for (const ci of categories) {
       const name = ci.category_name;
       const slug = name.replace(/\s+/g, '-');
@@ -72,7 +77,7 @@ async function auto() {
   if (bookCount === 0) {
     const insertBook = db.prepare(`INSERT INTO books (title, author, description, category, language, publisher, license_type, is_visible, is_featured, call_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
     let c = 0;
-    for (const b of data.books) {
+    for (const b of loadCatalog().books) {
       insertBook.run(b.title, b.author, b.description, b.category, b.language, b.publisher, b.license_type, b.is_visible, b.is_featured, b.book_number || null);
       c++;
     }

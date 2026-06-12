@@ -17,11 +17,16 @@ const db        = require('../database/db');
 const { contactValidation } = require('../middleware/validate');
 
 // ─── Rate limiter: 5 submissions per 15 min per IP ────────────────
+// Behind Cloudflare the real client IP is in CF-Connecting-IP;
+// req.ip (via trust proxy) is the fallback elsewhere.
+const clientIp = (req) => req.headers['cf-connecting-ip'] || req.ip;
+
 const contactLimiter = rateLimit({
   windowMs:        15 * 60 * 1000,
   max:             5,
   standardHeaders: true,
   legacyHeaders:   false,
+  keyGenerator:    clientIp,
   message:         { success: false, data: null, error: 'Too many messages. Try again in 15 minutes.' },
 });
 

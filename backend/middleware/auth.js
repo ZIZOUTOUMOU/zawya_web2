@@ -13,6 +13,13 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET  = process.env.JWT_SECRET  || 'dev_fallback_secret_change_me';
 const JWT_EXPIRES = process.env.JWT_EXPIRES_IN || '8h';
 
+// Refuse to start in production with the well-known dev secret —
+// admin tokens would be forgeable by anyone who reads the source.
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  console.error('[FATAL] JWT_SECRET must be set in production. Refusing to start.');
+  process.exit(1);
+}
+
 /**
  * Express middleware — reads JWT from httpOnly cookie or Bearer header.
  * On success: attaches req.admin = { id, email, iat, exp }

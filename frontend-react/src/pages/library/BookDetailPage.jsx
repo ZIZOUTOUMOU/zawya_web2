@@ -351,7 +351,7 @@ function RelatedBooks({ bookId }) {
               <Link key={b.id} to={`/library/${b.id}`} className={styles.relatedCard}>
                 <div className={styles.relatedCoverWrap}>
                   {b.cover_image
-                    ? <img src={assetUrl(b.cover_image)} alt={b.title} className={styles.relatedCoverImg} />
+                    ? <img src={assetUrl(b.cover_image)} alt={b.title} className={styles.relatedCoverImg} loading="lazy" />
                     : <div className={styles.relatedCoverFallback}>{b.title?.charAt(0) || '📖'}</div>
                   }
                 </div>

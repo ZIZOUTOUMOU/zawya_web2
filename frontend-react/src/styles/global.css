@@ -143,6 +143,11 @@ a {
 a:hover { color: var(--color-accent-dark); }
 
 img, svg { max-width: 100%; display: block; }
+video, iframe { max-width: 100%; }
+img, video { height: auto; }
+
+/* Long titles/words must never push the layout wider than the viewport */
+h1, h2, h3, h4, h5, h6, p { overflow-wrap: break-word; }
 
 ul, ol { list-style: none; }
 
@@ -331,7 +336,7 @@ ul, ol { list-style: none; }
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   z-index: 200;
-  max-width: 320px;
+  max-width: min(320px, calc(100vw - 3rem));
   animation: slideInToast 200ms ease;
 }
 .toast.error   { border-right-color: #dc2626; }
@@ -517,6 +522,21 @@ ul, ol { list-style: none; }
 @media (max-width: 768px) {
   .container { padding: 0 var(--space-md); }
   .section   { padding: var(--space-2xl) 0; }
+
+  /* Touch targets ≥ 44px on mobile */
+  .btn, .btn-sm { min-height: 44px; }
+  .pagination button { min-width: 44px; height: 44px; }
+
+  /* 16px inputs prevent iOS auto-zoom on focus */
+  .form-input,
+  .form-textarea,
+  .form-select { font-size: 1rem; }
+}
+
+@media (max-width: 640px) {
+  /* Modals: tighter padding so content fits small viewports */
+  .lightbox-content { padding: var(--space-md); }
+  .lightbox-close { width: 44px; height: 44px; }
 }
 
 @media (max-width: 480px) {

@@ -291,6 +291,20 @@
 .log_delete { background: color-mix(in srgb, #dc2626 15%, var(--bg-elevated)); color: #dc2626; }
 
 /* ─── Responsive ─── */
+/* ─── Modal form rows (collapse on phones) ─── */
+.formRow2,
+.formRow3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.formRow3 { grid-template-columns: 1fr 1fr 1fr; }
+
+@media (max-width: 640px) {
+  .formRow2, .formRow3 { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 900px) {
   .statsGrid { grid-template-columns: repeat(2, 1fr); }
 }

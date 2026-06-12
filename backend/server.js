@@ -17,11 +17,16 @@ const helmet       = require('helmet');
 const cors         = require('cors');
 const cookieParser = require('cookie-parser');
 const db           = require('./database/db');
+const seed         = require('./database/seed');
 
 const app      = express();
 const PORT     = parseInt(process.env.PORT, 10) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const UPLOAD_ROOT = process.env.UPLOAD_PATH || './backend/uploads';
+
+// Behind Cloudflare/Render the client IP arrives via X-Forwarded-For;
+// required for express-rate-limit to key per visitor instead of per proxy.
+app.set('trust proxy', 1);
 
 // ─── Ensure upload dirs exist ─────────────────────────────────────
 ['covers', 'previews', 'pdfs', 'events', 'misc'].forEach(sub => {
@@ -63,8 +68,13 @@ app.use(express.urlencoded({ extended: true, limit: '4mb' }));
 app.use(cookieParser());
 
 // ─── Wait for DB before handling requests ────────────────────────
+// DB init + auto-seed (fills an empty DB on first deploy) run ONCE at
+// startup; each request only awaits the already-resolved promise.
+const startup = db.ready().then(() => seed.auto());
+startup.catch(e => console.error('[startup] DB init/seed failed:', e.message));
+
 app.use(async (req, res, next) => {
-  try { await db.ready(); next(); }
+  try { await startup; next(); }
   catch (e) { next(e); }
 });
 

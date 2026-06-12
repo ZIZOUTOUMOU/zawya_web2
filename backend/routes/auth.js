@@ -17,11 +17,16 @@ const { signToken, JWT_SECRET } = require('../middleware/auth');
 const { loginValidation }       = require('../middleware/validate');
 
 // ─── Rate limiter: 10 attempts per 15 min per IP ──────────────────
+// Behind Cloudflare the real client IP is in CF-Connecting-IP;
+// req.ip (via trust proxy) is the fallback elsewhere.
+const clientIp = (req) => req.headers['cf-connecting-ip'] || req.ip;
+
 const loginLimiter = rateLimit({
   windowMs:        15 * 60 * 1000,
   max:             10,
   standardHeaders: true,
   legacyHeaders:   false,
+  keyGenerator:    clientIp,
   message:         { success: false, error: 'Too many login attempts. Try again in 15 minutes.' },
 });
 
