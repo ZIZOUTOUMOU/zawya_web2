@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "render-build": "cd zawiya-react && npm install && npm run build && cd .. && node backend/database/seed.js"
+    "render-build": "cd zawiya-react && npm install --include=dev && npm run build && cd .. && node backend/database/seed.js"
   }
 }
