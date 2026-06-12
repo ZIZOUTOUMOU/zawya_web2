@@ -127,7 +127,7 @@ export default function BookDetailPage() {
         {/* ── Cover ── */}
         <div className={styles.coverWrap}>
           {cover ? (
-            <img src={cover} alt={`غلاف ${book.title}`} className={styles.coverImg} />
+            <img src={cover} alt={`غلاف ${book.title}`} className={styles.coverImg} loading="lazy" />
           ) : (
             <div className={styles.coverFallback}>
               <span>{book.title?.charAt(0) || '📖'}</span>
@@ -256,6 +256,7 @@ export default function BookDetailPage() {
               <img
                 src={lightbox.pages[lightbox.index].url}
                 alt={lightbox.pages[lightbox.index].label}
+                loading="lazy"
               />
               <div className={styles.lbWatermark}>معاينة فقط — تفضل بزيارة المكتبة للاطلاع الكامل</div>
             </div>
@@ -316,7 +317,7 @@ function PreviewCard({ src, label, onClick, available, bookTitle }) {
     >
       <div className={styles.previewFrame}>
         {available ? (
-          <img src={src} alt={`${bookTitle} — ${label}`}
+          <img src={src} alt={`${bookTitle} — ${label}`} loading="lazy"
             onError={e => { e.target.style.display = 'none' }} />
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', background: 'linear-gradient(135deg, var(--bg-elevated-2), var(--bg-elevated))' }}>
