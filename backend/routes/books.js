@@ -28,7 +28,7 @@ const SORT_MAP = {
 
 // ─── GET /api/books ───────────────────────────────────────────────
 // Query params: search, category, year_from, year_to, language, sort, page, limit
-router.get('/books', (req, res) => {
+router.get('/books', async (req, res) => {
   const {
     search = '', category = '', year_from = '', year_to = '',
     language = '', author = '', sort = 'newest', page = '1', limit = '20',
@@ -67,11 +67,11 @@ router.get('/books', (req, res) => {
   const whereSql = where.join(' AND ');
 
   try {
-    const totalRow = db.prepare(
+    const totalRow = await db.prepare(
       `SELECT COUNT(*) AS n FROM books b WHERE ${whereSql}`
     ).get(...params);
 
-    const rows = db.prepare(
+    const rows = await db.prepare(
       `SELECT * FROM books b WHERE ${whereSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`
     ).all(...params, lim, offset);
 
@@ -83,41 +83,56 @@ router.get('/books', (req, res) => {
 });
 
 // ─── GET /api/books/featured ──────────────────────────────────────
-router.get('/books/featured', (req, res) => {
-  const rows = db.prepare(
-    `SELECT * FROM books WHERE is_visible = 1 AND is_featured = 1
-     ORDER BY created_at DESC LIMIT 8`
-  ).all();
-  res.json(ok(rows));
+router.get('/books/featured', async (req, res) => {
+  try {
+    const rows = await db.prepare(
+      `SELECT * FROM books WHERE is_visible = 1 AND is_featured = 1
+       ORDER BY created_at DESC LIMIT 8`
+    ).all();
+    res.json(ok(rows));
+  } catch (e) {
+    console.error('/api/books/featured error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 // ─── GET /api/books/recent ────────────────────────────────────────
-router.get('/books/recent', (req, res) => {
-  const rows = db.prepare(
-    `SELECT * FROM books WHERE is_visible = 1
-     ORDER BY created_at DESC LIMIT 8`
-  ).all();
-  res.json(ok(rows));
+router.get('/books/recent', async (req, res) => {
+  try {
+    const rows = await db.prepare(
+      `SELECT * FROM books WHERE is_visible = 1
+       ORDER BY created_at DESC LIMIT 8`
+    ).all();
+    res.json(ok(rows));
+  } catch (e) {
+    console.error('/api/books/recent error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 // ─── GET /api/books/random ───────────────────────────────────────
-router.get('/books/random', (req, res) => {
-  const row = db.prepare(`
-    SELECT b.id, b.title, b.author, b.cover_image
-    FROM books b
-    WHERE b.is_visible = 1
-    ORDER BY RANDOM() LIMIT 1
-  `).get();
-  if (!row) return res.json(err('No books found', 404));
-  res.json(ok(row));
+router.get('/books/random', async (req, res) => {
+  try {
+    const row = await db.prepare(`
+      SELECT b.id, b.title, b.author, b.cover_image
+      FROM books b
+      WHERE b.is_visible = 1
+      ORDER BY RANDOM() LIMIT 1
+    `).get();
+    if (!row) return res.json(err('No books found', 404));
+    res.json(ok(row));
+  } catch (e) {
+    console.error('/api/books/random error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 // ─── GET /api/books/:id/related ──────────────────────────────────
-router.get('/books/:id/related', (req, res) => {
+router.get('/books/:id/related', async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (!id) return res.status(400).json(err('Invalid id'));
   try {
-    const rows = db.prepare(`
+    const rows = await db.prepare(`
       SELECT b.* FROM books b
       WHERE b.is_visible = 1
         AND b.id != ?
@@ -135,52 +150,72 @@ router.get('/books/:id/related', (req, res) => {
 });
 
 // ─── GET /api/books/:id ───────────────────────────────────────────
-router.get('/books/:id', (req, res) => {
+router.get('/books/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (!id) return res.status(400).json(err('Invalid id'));
-  const row = db.prepare(
-    `SELECT * FROM books WHERE id = ? AND is_visible = 1`
-  ).get(id);
-  if (!row) return res.status(404).json(err('Book not found', 404));
-  res.json(ok(row));
+  try {
+    const row = await db.prepare(
+      `SELECT * FROM books WHERE id = ? AND is_visible = 1`
+    ).get(id);
+    if (!row) return res.status(404).json(err('Book not found', 404));
+    res.json(ok(row));
+  } catch (e) {
+    console.error('/api/books/:id error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 // ─── GET /api/categories ──────────────────────────────────────────
-router.get('/categories', (req, res) => {
-  const rows = db.prepare(
-    `SELECT c.*, COUNT(b.id) AS book_count
-     FROM categories c
-     LEFT JOIN books b ON b.category = c.name AND b.is_visible = 1
-     GROUP BY c.id
-     ORDER BY c.name ASC`
-  ).all();
-  res.json(ok(rows));
+router.get('/categories', async (req, res) => {
+  try {
+    const rows = await db.prepare(
+      `SELECT c.*, COUNT(b.id) AS book_count
+       FROM categories c
+       LEFT JOIN books b ON b.category = c.name AND b.is_visible = 1
+       GROUP BY c.id
+       ORDER BY c.name ASC`
+    ).all();
+    res.json(ok(rows));
+  } catch (e) {
+    console.error('/api/categories error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 // ─── GET /api/search?q= ───────────────────────────────────────────
-router.get('/search', (req, res) => {
+router.get('/search', async (req, res) => {
   const q = (req.query.q || '').toString().trim();
   if (!q || q.length < 2) return res.json(ok([]));
   const like = `%${q}%`;
-  const rows = db.prepare(`
-    SELECT b.id, b.title, b.author, b.cover_image
-    FROM books b
-    WHERE is_visible = 1 AND (title LIKE ? OR author LIKE ? OR isbn13 LIKE ?)
-    ORDER BY
-      CASE WHEN title LIKE ? THEN 0 ELSE 1 END,
-      title COLLATE NOCASE ASC
-    LIMIT 10
-  `).all(like, like, like, like);
-  res.json(ok(rows));
+  try {
+    const rows = await db.prepare(`
+      SELECT b.id, b.title, b.author, b.cover_image
+      FROM books b
+      WHERE is_visible = 1 AND (title LIKE ? OR author LIKE ? OR isbn13 LIKE ?)
+      ORDER BY
+        CASE WHEN title LIKE ? THEN 0 ELSE 1 END,
+        title COLLATE NOCASE ASC
+      LIMIT 10
+    `).all(like, like, like, like);
+    res.json(ok(rows));
+  } catch (e) {
+    console.error('/api/search error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 // ─── GET /api/stats ───────────────────────────────────────────────
-router.get('/stats', (req, res) => {
-  const totalBooks      = db.prepare(`SELECT COUNT(*) AS n FROM books WHERE is_visible = 1`).get().n;
-  const totalCategories = db.prepare(`SELECT COUNT(DISTINCT category) AS n FROM books WHERE is_visible = 1`).get().n;
-  const totalAuthors    = db.prepare(`SELECT COUNT(DISTINCT author)   AS n FROM books WHERE is_visible = 1`).get().n;
-  const totalPages      = db.prepare(`SELECT COALESCE(SUM(total_pages),0) AS n FROM books WHERE is_visible = 1`).get().n;
-  res.json(ok({ totalBooks, totalCategories, totalAuthors, totalPages }));
+router.get('/stats', async (req, res) => {
+  try {
+    const totalBooks      = (await db.prepare(`SELECT COUNT(*) AS n FROM books WHERE is_visible = 1`).get()).n;
+    const totalCategories = (await db.prepare(`SELECT COUNT(DISTINCT category) AS n FROM books WHERE is_visible = 1`).get()).n;
+    const totalAuthors    = (await db.prepare(`SELECT COUNT(DISTINCT author)   AS n FROM books WHERE is_visible = 1`).get()).n;
+    const totalPages      = (await db.prepare(`SELECT COALESCE(SUM(total_pages),0) AS n FROM books WHERE is_visible = 1`).get()).n;
+    res.json(ok({ totalBooks, totalCategories, totalAuthors, totalPages }));
+  } catch (e) {
+    console.error('/api/stats error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 module.exports = router;

@@ -36,10 +36,10 @@ const envelope = (data, meta = null, error = null) => ({
   success: !error, data, meta, error,
 });
 
-/** Record an action in the activity log */
-function logActivity(adminId, action, bookTitle) {
+/** Record an action in the activity log (fire-and-forget; never throws to caller) */
+async function logActivity(adminId, action, bookTitle) {
   try {
-    db.prepare(
+    await db.prepare(
       `INSERT INTO activity_log (admin_id, action, book_title) VALUES (?, ?, ?)`
     ).run(adminId, action, bookTitle || null);
   } catch (e) {
@@ -71,13 +71,14 @@ function deleteLocal(url) {
 }
 
 // ─── GET /api/admin/dashboard ─────────────────────────────────────
-router.get('/dashboard', requireAuth, (req, res) => {
-  const totalBooks      = db.prepare(`SELECT COUNT(*) AS n FROM books`).get().n;
-  const booksThisMonth  = db.prepare(`
+router.get('/dashboard', requireAuth, async (req, res) => {
+  try {
+  const totalBooks      = (await db.prepare(`SELECT COUNT(*) AS n FROM books`).get()).n;
+  const booksThisMonth  = (await db.prepare(`
     SELECT COUNT(*) AS n FROM books
     WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
-  `).get().n;
-  const totalCategories = db.prepare(`SELECT COUNT(*) AS n FROM categories`).get().n;
+  `).get()).n;
+  const totalCategories = (await db.prepare(`SELECT COUNT(*) AS n FROM categories`).get()).n;
 
   // Calculate upload directory size
   let storageBytes = 0;
@@ -98,24 +99,38 @@ router.get('/dashboard', requireAuth, (req, res) => {
     storageBytes,
     storageMB: +(storageBytes / 1024 / 1024).toFixed(2),
   }));
+  } catch (e) {
+    console.error('/api/admin/dashboard error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ─── GET /api/admin/logs ──────────────────────────────────────────
-router.get('/logs', requireAuth, (req, res) => {
-  const rows = db.prepare(`
-    SELECT al.*, a.email AS admin_email
-    FROM activity_log al
-    LEFT JOIN admins a ON a.id = al.admin_id
-    ORDER BY al.timestamp DESC
-    LIMIT 50
-  `).all();
-  res.json(envelope(rows));
+router.get('/logs', requireAuth, async (req, res) => {
+  try {
+    const rows = await db.prepare(`
+      SELECT al.*, a.email AS admin_email
+      FROM activity_log al
+      LEFT JOIN admins a ON a.id = al.admin_id
+      ORDER BY al.timestamp DESC
+      LIMIT 50
+    `).all();
+    res.json(envelope(rows));
+  } catch (e) {
+    console.error('/api/admin/logs error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ─── GET /api/admin/books ─────────────────────────────────────────
-router.get('/books', requireAuth, (req, res) => {
-  const rows = db.prepare(`SELECT * FROM books ORDER BY created_at DESC`).all();
-  res.json(envelope(rows));
+router.get('/books', requireAuth, async (req, res) => {
+  try {
+    const rows = await db.prepare(`SELECT * FROM books ORDER BY created_at DESC`).all();
+    res.json(envelope(rows));
+  } catch (e) {
+    console.error('/api/admin/books error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ─── POST /api/admin/books/fetch-openlibrary ─────────────────────
@@ -182,7 +197,7 @@ router.post('/books', requireAuth, uploadBook, bookValidation, async (req, res) 
       pdfPath = newName;
     }
 
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO books (
         title, author, description, category, isbn10, isbn13,
         publication_year, total_pages, language, publisher,
@@ -213,7 +228,7 @@ router.post('/books', requireAuth, uploadBook, bookValidation, async (req, res) 
     );
 
     logActivity(req.admin.id, 'add', body.title);
-    const inserted = db.prepare(`SELECT * FROM books WHERE id = ?`).get(result.lastInsertRowid);
+    const inserted = await db.prepare(`SELECT * FROM books WHERE id = ?`).get(result.lastInsertRowid);
     res.json(envelope(inserted));
   } catch (e) {
     console.error('Add book error:', e);
@@ -225,7 +240,7 @@ router.post('/books', requireAuth, uploadBook, bookValidation, async (req, res) 
 async function updateBook(req, res) {
   try {
     const id       = parseInt(req.params.id, 10);
-    const existing = db.prepare(`SELECT * FROM books WHERE id = ?`).get(id);
+    const existing = await db.prepare(`SELECT * FROM books WHERE id = ?`).get(id);
     if (!existing) return res.status(404).json(envelope(null, null, 'Not found'));
 
     const body  = req.body;
@@ -277,7 +292,7 @@ async function updateBook(req, res) {
       pdfPath = toPublicUrl('pdf_file', newName);
     }
 
-    db.prepare(`
+    await db.prepare(`
       UPDATE books SET
         title=?, author=?, description=?, category=?, isbn10=?, isbn13=?,
         publication_year=?, total_pages=?, language=?, publisher=?,
@@ -310,7 +325,7 @@ async function updateBook(req, res) {
     );
 
     logActivity(req.admin.id, 'edit', body.title);
-    const updated = db.prepare(`SELECT * FROM books WHERE id = ?`).get(id);
+    const updated = await db.prepare(`SELECT * FROM books WHERE id = ?`).get(id);
     res.json(envelope(updated));
   } catch (e) {
     console.error('Update book error:', e);
@@ -325,19 +340,24 @@ router.post('/books/:id', requireAuth, uploadBook, bookValidation, (req, res, ne
 });
 
 // ─── DELETE /api/admin/books/:id ──────────────────────────────────
-router.delete('/books/:id', requireAuth, (req, res) => {
-  const id   = parseInt(req.params.id, 10);
-  const book = db.prepare(`SELECT * FROM books WHERE id = ?`).get(id);
-  if (!book) return res.status(404).json(envelope(null, null, 'Not found'));
+router.delete('/books/:id', requireAuth, async (req, res) => {
+  try {
+    const id   = parseInt(req.params.id, 10);
+    const book = await db.prepare(`SELECT * FROM books WHERE id = ?`).get(id);
+    if (!book) return res.status(404).json(envelope(null, null, 'Not found'));
 
-  deleteLocal(book.cover_image);
-  deleteLocal(book.first_page_img);
-  deleteLocal(book.last_page_img);
-  deleteLocal(book.pdf_file);
+    deleteLocal(book.cover_image);
+    deleteLocal(book.first_page_img);
+    deleteLocal(book.last_page_img);
+    deleteLocal(book.pdf_file);
 
-  db.prepare(`DELETE FROM books WHERE id = ?`).run(id);
-  logActivity(req.admin.id, 'delete', book.title);
-  res.json(envelope({ deleted: id }));
+    await db.prepare(`DELETE FROM books WHERE id = ?`).run(id);
+    logActivity(req.admin.id, 'delete', book.title);
+    res.json(envelope({ deleted: id }));
+  } catch (e) {
+    console.error('Delete book error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ═══ Events ═══════════════════════════════════════════════════════
@@ -352,9 +372,14 @@ async function storeEventImage(file) {
 }
 
 // ─── GET /api/admin/events ────────────────────────────────────────
-router.get('/events', requireAuth, (req, res) => {
-  const rows = db.prepare(`SELECT * FROM events ORDER BY date DESC`).all();
-  res.json(envelope(rows));
+router.get('/events', requireAuth, async (req, res) => {
+  try {
+    const rows = await db.prepare(`SELECT * FROM events ORDER BY date DESC`).all();
+    res.json(envelope(rows));
+  } catch (e) {
+    console.error('/api/admin/events error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ─── POST /api/admin/events ───────────────────────────────────────
@@ -371,7 +396,7 @@ router.post('/events', requireAuth, uploadEvent, eventValidation, async (req, re
       imagePath = body.image_url.trim();
     }
 
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO events (
         title_ar, title_en, description_ar, description_en,
         location_ar, location_en, date, image
@@ -388,7 +413,7 @@ router.post('/events', requireAuth, uploadEvent, eventValidation, async (req, re
     );
 
     logActivity(req.admin.id, 'add', body.title_en || body.title_ar);
-    const inserted = db.prepare(`SELECT * FROM events WHERE id = ?`).get(result.lastInsertRowid);
+    const inserted = await db.prepare(`SELECT * FROM events WHERE id = ?`).get(result.lastInsertRowid);
     res.json(envelope(inserted));
   } catch (e) {
     console.error('Add event error:', e);
@@ -400,7 +425,7 @@ router.post('/events', requireAuth, uploadEvent, eventValidation, async (req, re
 async function updateEvent(req, res) {
   try {
     const id       = parseInt(req.params.id, 10);
-    const existing = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+    const existing = await db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
     if (!existing) return res.status(404).json(envelope(null, null, 'Not found'));
 
     const body  = req.body;
@@ -414,7 +439,7 @@ async function updateEvent(req, res) {
       imagePath = body.image_url.trim();
     }
 
-    db.prepare(`
+    await db.prepare(`
       UPDATE events SET
         title_ar=?, title_en=?, description_ar=?, description_en=?,
         location_ar=?, location_en=?, date=?, image=?
@@ -432,7 +457,7 @@ async function updateEvent(req, res) {
     );
 
     logActivity(req.admin.id, 'edit', body.title_en || body.title_ar);
-    const updated = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+    const updated = await db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
     res.json(envelope(updated));
   } catch (e) {
     console.error('Update event error:', e);
@@ -447,40 +472,55 @@ router.post('/events/:id', requireAuth, uploadEvent, eventValidation, (req, res)
 });
 
 // ─── DELETE /api/admin/events/:id ─────────────────────────────────
-router.delete('/events/:id', requireAuth, (req, res) => {
-  const id    = parseInt(req.params.id, 10);
-  const event = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
-  if (!event) return res.status(404).json(envelope(null, null, 'Not found'));
+router.delete('/events/:id', requireAuth, async (req, res) => {
+  try {
+    const id    = parseInt(req.params.id, 10);
+    const event = await db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+    if (!event) return res.status(404).json(envelope(null, null, 'Not found'));
 
-  deleteLocal(event.image);
+    deleteLocal(event.image);
 
-  db.prepare(`DELETE FROM events WHERE id = ?`).run(id);
-  logActivity(req.admin.id, 'delete', event.title_en || event.title_ar);
-  res.json(envelope({ deleted: id }));
+    await db.prepare(`DELETE FROM events WHERE id = ?`).run(id);
+    logActivity(req.admin.id, 'delete', event.title_en || event.title_ar);
+    res.json(envelope({ deleted: id }));
+  } catch (e) {
+    console.error('Delete event error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ═══ Contact messages ═════════════════════════════════════════════
 
 // ─── GET /api/admin/messages ──────────────────────────────────────
-router.get('/messages', requireAuth, (req, res) => {
-  const rows = db.prepare(`
-    SELECT * FROM messages
-    ORDER BY is_handled ASC, created_at DESC
-  `).all();
-  res.json(envelope(rows));
+router.get('/messages', requireAuth, async (req, res) => {
+  try {
+    const rows = await db.prepare(`
+      SELECT * FROM messages
+      ORDER BY is_handled ASC, created_at DESC
+    `).all();
+    res.json(envelope(rows));
+  } catch (e) {
+    console.error('/api/admin/messages error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 // ─── PUT /api/admin/messages/:id/handled ──────────────────────────
 // Body: { is_handled: 0 | 1 }  (defaults to 1)
-router.put('/messages/:id/handled', requireAuth, (req, res) => {
-  const id  = parseInt(req.params.id, 10);
-  const msg = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(id);
-  if (!msg) return res.status(404).json(envelope(null, null, 'Not found'));
+router.put('/messages/:id/handled', requireAuth, async (req, res) => {
+  try {
+    const id  = parseInt(req.params.id, 10);
+    const msg = await db.prepare(`SELECT * FROM messages WHERE id = ?`).get(id);
+    if (!msg) return res.status(404).json(envelope(null, null, 'Not found'));
 
-  const handled = req.body.is_handled === 0 || req.body.is_handled === '0' ? 0 : 1;
-  db.prepare(`UPDATE messages SET is_handled = ? WHERE id = ?`).run(handled, id);
-  const updated = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(id);
-  res.json(envelope(updated));
+    const handled = req.body.is_handled === 0 || req.body.is_handled === '0' ? 0 : 1;
+    await db.prepare(`UPDATE messages SET is_handled = ? WHERE id = ?`).run(handled, id);
+    const updated = await db.prepare(`SELECT * FROM messages WHERE id = ?`).get(id);
+    res.json(envelope(updated));
+  } catch (e) {
+    console.error('Update message error:', e.message);
+    res.status(500).json(envelope(null, null, 'Database error'));
+  }
 });
 
 module.exports = router;

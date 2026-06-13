@@ -24,7 +24,7 @@ const err = (msg, code = 400)   => ({ _code: code, success: false, data: null, e
 
 // ─── GET /api/events ──────────────────────────────────────────────
 // Query params: upcoming (true → only future events, soonest first), page, limit
-router.get('/events', (req, res) => {
+router.get('/events', async (req, res) => {
   const { upcoming = '', page = '1', limit = '20' } = req.query;
 
   const isUpcoming = upcoming === 'true' || upcoming === '1';
@@ -36,11 +36,11 @@ router.get('/events', (req, res) => {
   const offset = (pg - 1) * lim;
 
   try {
-    const totalRow = db.prepare(
+    const totalRow = await db.prepare(
       `SELECT COUNT(*) AS n FROM events e ${whereSql}`
     ).get();
 
-    const rows = db.prepare(
+    const rows = await db.prepare(
       `SELECT * FROM events e ${whereSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`
     ).all(lim, offset);
 
@@ -52,12 +52,17 @@ router.get('/events', (req, res) => {
 });
 
 // ─── GET /api/events/:id ──────────────────────────────────────────
-router.get('/events/:id', (req, res) => {
+router.get('/events/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (!id) return res.status(400).json(err('Invalid id'));
-  const row = db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
-  if (!row) return res.status(404).json(err('Event not found', 404));
-  res.json(ok(row));
+  try {
+    const row = await db.prepare(`SELECT * FROM events WHERE id = ?`).get(id);
+    if (!row) return res.status(404).json(err('Event not found', 404));
+    res.json(ok(row));
+  } catch (e) {
+    console.error('/api/events/:id error:', e.message);
+    res.status(500).json(err('Database error', 500));
+  }
 });
 
 module.exports = router;

@@ -9,7 +9,7 @@ async function run() {
   await db.ready();
 
   // Check if we already have book data from this extract
-  const existingCat = db.prepare(`SELECT COUNT(*) AS n FROM categories`).get().n;
+  const existingCat = (await db.prepare(`SELECT COUNT(*) AS n FROM categories`).get()).n;
   if (existingCat > 6) {
     console.log(`Categories already have ${existingCat} rows — skipping catalog seed.`);
     console.log(`  (Delete ${process.env.DATABASE_PATH || './backend/database/zawiya.db'} to reseed.)`);
@@ -27,43 +27,35 @@ async function run() {
 
   console.log(`\n📚 Seeding ${books.length} books from ${categories.length} categories...\n`);
 
+  // Batch-insert in write-transaction chunks of 500
+  const runBatches = async (stmts) => {
+    for (let i = 0; i < stmts.length; i += 500) {
+      await db.batch(stmts.slice(i, i + 500), 'write');
+    }
+  };
+
   // Insert categories
-  const catInsert = db.prepare(
-    `INSERT OR IGNORE INTO categories (name, slug, color) VALUES (?, ?, ?)`
-  );
-  let catCount = 0;
-  for (const ci of categories) {
+  await runBatches(categories.map(ci => {
     const name = ci['category_name'];
-    const slug = name.replace(/\s+/g, '-');
-    catInsert.run(name, slug, null);
-    catCount++;
-  }
-  console.log(`✓ Categories: ${catCount} upserted`);
+    return {
+      sql:  `INSERT OR IGNORE INTO categories (name, slug, color) VALUES (?, ?, ?)`,
+      args: [name, name.replace(/\s+/g, '-'), null],
+    };
+  }));
+  console.log(`✓ Categories: ${categories.length} upserted`);
 
   // Insert books
-  const insertBook = db.prepare(`
-    INSERT OR IGNORE INTO books (
+  await runBatches(books.map(b => ({
+    sql: `INSERT OR IGNORE INTO books (
       title, author, description, category, language,
       publisher, license_type, is_visible, is_featured, call_number
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [b.title, b.author, b.description, b.category, b.language,
+           b.publisher, b.license_type, b.is_visible, b.is_featured,
+           b.book_number || null],
+  })));
 
-  let count = 0;
-  for (const b of books) {
-    try {
-      insertBook.run(
-        b.title, b.author, b.description, b.category, b.language,
-        b.publisher, b.license_type, b.is_visible, b.is_featured,
-        b.book_number || null
-      );
-      count++;
-      if (count % 200 === 0) process.stdout.write(`  ✓ ${count} books...\n`);
-    } catch (err) {
-      console.error(`  ✗ Error inserting "${b.title}": ${err.message}`);
-    }
-  }
-
-  console.log(`\n✅ Seeded ${count} books from catalog extract.\n`);
+  console.log(`\n✅ Seeded ${books.length} books from catalog extract.\n`);
   process.exit(0);
 }
 

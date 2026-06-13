@@ -43,7 +43,7 @@ const cookieOpts = {
 router.post('/login', loginLimiter, loginValidation, async (req, res) => {
   const { email, password } = req.body;
 
-  const admin = db.prepare(`SELECT * FROM admins WHERE email = ?`).get(email);
+  const admin = await db.prepare(`SELECT * FROM admins WHERE email = ?`).get(email);
   if (!admin) {
     await bcrypt.compare(password, '$2a$12$invalidhashpadding000000000000000000000000000000000000000');
     return res.status(401).json({ success: false, error: 'Invalid credentials' });

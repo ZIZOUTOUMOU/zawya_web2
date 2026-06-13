@@ -31,10 +31,10 @@ const contactLimiter = rateLimit({
 });
 
 // ─── POST /api/contact ────────────────────────────────────────────
-router.post('/contact', contactLimiter, contactValidation, (req, res) => {
+router.post('/contact', contactLimiter, contactValidation, async (req, res) => {
   const { name, email, phone, subject, message } = req.body;
   try {
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO messages (name, email, phone, subject, message)
       VALUES (?, ?, ?, ?, ?)
     `).run(name, email, phone || null, subject || null, message);
