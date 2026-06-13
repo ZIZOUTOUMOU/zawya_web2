@@ -7,6 +7,9 @@ import styles from './SectionPage.module.css'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^[+\d][\d\s\-().]{4,29}$/
 
+// Canonical Google Maps place link for الزاوية التجانية (tracking params stripped)
+const MAPS_URL = 'https://www.google.com/maps/place/الزاوية+التجانية/@33.4908891,6.8048353,17z/data=!3m1!4b1!4m6!3m5!1s0x12591910bf27b0e3:0xb43acf1d61f73374!8m2!3d33.4908891!4d6.8048353'
+
 export default function ContactPage() {
   const t = useT()
   const [form, setForm]     = useState({ name: '', email: '', phone: '', subject: '', message: '' })
@@ -107,7 +110,11 @@ export default function ContactPage() {
               <ContactInfoItem
                 icon="📍"
                 title={t('contact.addressTitle')}
-                content={<span>{t('contact.addressValue')}</span>}
+                content={
+                  <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                    {t('contact.addressValue')}
+                  </a>
+                }
                 note={t('contact.addressNote')}
               />
 
@@ -118,11 +125,18 @@ export default function ContactPage() {
                 note={t('contact.hoursTime')}
               />
 
-              <div className="img-placeholder" style={{ minHeight: 200, marginTop: '1rem' }}>
-                <span style={{ fontSize: '2rem' }}>🗺️</span>
+              <a
+                href={MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="img-placeholder"
+                style={{ minHeight: 200, marginTop: '1rem', textDecoration: 'none', cursor: 'pointer' }}
+                aria-label={t('contact.mapHint')}
+              >
+                <span style={{ fontSize: '2rem' }} aria-hidden="true">🗺️</span>
                 <span>{t('contact.mapCaption')}</span>
                 <small style={{ opacity: 0.6 }}>{t('contact.mapHint')}</small>
-              </div>
+              </a>
             </div>
 
             <div className={styles.contactForm}>

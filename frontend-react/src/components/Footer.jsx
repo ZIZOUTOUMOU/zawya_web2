@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom'
 import { useT } from '../context/LanguageContext'
 import styles from './Footer.module.css'
 
+// Canonical Google Maps place link for الزاوية التجانية (tracking params stripped)
+const MAPS_URL = 'https://www.google.com/maps/place/الزاوية+التجانية/@33.4908891,6.8048353,17z/data=!3m1!4b1!4m6!3m5!1s0x12591910bf27b0e3:0xb43acf1d61f73374!8m2!3d33.4908891!4d6.8048353'
+
 const NAV_LINKS = [
   { key: 'nav.about',        path: '/about' },
   { key: 'nav.quranSchool',  path: '/quran-school' },
@@ -56,7 +59,11 @@ export default function Footer() {
           <address className={styles.address}>
             <p>📧 <a href="mailto:zawiya@example.com" className={styles.link}>zawiya@example.com</a></p>
             <p>📞 <a href="tel:+213XXXXXXXX" className={styles.link}>+213 XX XX XX XX</a></p>
-            <p>{t('footer.address')}</p>
+            <p>
+              <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                {t('footer.address')}
+              </a>
+            </p>
           </address>
         </div>
 
