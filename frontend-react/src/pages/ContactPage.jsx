@@ -7,8 +7,8 @@ import styles from './SectionPage.module.css'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^[+\d][\d\s\-().]{4,29}$/
 
-// Canonical Google Maps place link for الزاوية التجانية (tracking params stripped)
-const MAPS_URL = 'https://www.google.com/maps/place/الزاوية+التجانية/@33.4908891,6.8048353,17z/data=!3m1!4b1!4m6!3m5!1s0x12591910bf27b0e3:0xb43acf1d61f73374!8m2!3d33.4908891!4d6.8048353'
+// Google Maps place link for الزاوية التجانية
+const MAPS_URL = 'https://www.google.com/maps/place/الزاوية+التجانية%E2%80%AD/@33.4908891,6.8074102,17z/data=!3m1!4b1!4m6!3m5!1s0x12591910bf27b0e3:0xb43acf1d61f73374!8m2!3d33.4908891!4d6.8048353!16s%2Fg%2F11bwp6fxzg?entry=ttu&g_ep=EgoyMDI2MDYxMC4wIKXMDSoASAFQAw%3D%3D'
 
 export default function ContactPage() {
   const t = useT()
