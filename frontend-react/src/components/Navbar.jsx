@@ -77,14 +77,7 @@ export default function Navbar() {
         {/* ── Logo / Brand ── */}
         <Link to="/" className={styles.brand} aria-label={t('nav.brandAria')}>
           <div className={styles.logoMark} aria-hidden="true">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="10" fill="var(--color-primary)"/>
-              <path
-                d="M20 8 L22.9 16.1 H31.5 L24.8 21.2 L27.7 29.3 L20 24.2 L12.3 29.3 L15.2 21.2 L8.5 16.1 H17.1 Z"
-                fill="var(--color-accent)"
-                opacity="0.9"
-              />
-            </svg>
+            <img src="/logo.jpg" alt="" width="40" height="40" style={{ display: 'block', borderRadius: '10px', objectFit: 'cover' }} />
           </div>
           <div className={styles.brandText}>
             <span className={styles.brandName}>{t('site.name')}</span>
