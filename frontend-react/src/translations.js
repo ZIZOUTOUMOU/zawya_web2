@@ -86,6 +86,7 @@ const translations = {
       relatedEmpty: 'لا توجد كتب ذات صلة',
       published: 'النشر',
       closePreview: 'إغلاق المعاينة',
+      samplePages: 'معاينة صفحات الكتاب',
     },
     pdfReader: {
       page: 'صفحة:', loading: 'جارٍ تحميل الكتاب…',
@@ -453,6 +454,7 @@ const translations = {
       relatedEmpty: 'No related books',
       published: 'Published',
       closePreview: 'Close preview',
+      samplePages: 'Preview book pages',
     },
     pdfReader: {
       page: 'Page:', loading: 'Loading book…',

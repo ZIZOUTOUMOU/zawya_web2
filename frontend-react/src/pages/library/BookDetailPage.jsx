@@ -40,6 +40,8 @@ export default function BookDetailPage() {
   const [inList,       setInList]       = useState(false)
   const [lightbox,     setLightbox]     = useState(null) // { pages, index }
   const [pdfOpen,      setPdfOpen]      = useState(false)
+  const [sampleOpen,   setSampleOpen]   = useState(false)
+  const [samples,      setSamples]      = useState({})   // { "call/number": "file.pdf" }
   const [copied,       setCopied]       = useState(false)
 
   useEffect(() => {
@@ -57,6 +59,15 @@ export default function BookDetailPage() {
       })
       .finally(() => setLoading(false))
   }, [id])
+
+  // Sample-pages manifest (scanned PDFs served from the frontend at /book-pages/).
+  // Keyed by call_number; loaded once. Missing/!ok manifest → no preview button.
+  useEffect(() => {
+    fetch('/book-pages/index.json')
+      .then(r => (r.ok ? r.json() : {}))
+      .then(setSamples)
+      .catch(() => {})
+  }, [])
 
   const toggleList = () => {
     const now = ReadingList.toggle(book.id)
@@ -113,6 +124,9 @@ export default function BookDetailPage() {
     </div>
   )
   if (!book) return null
+
+  // Scanned sample-pages PDF for this book, if one was provided (served from /book-pages/)
+  const sampleFile = book.call_number ? samples[book.call_number] : undefined
 
   const cover      = assetUrl(book.cover_image)
   const rating     = Math.round(parseFloat(book.rating) || 0)
@@ -203,6 +217,11 @@ export default function BookDetailPage() {
             {book.pdf_file && (
               <button className="btn btn-ghost" onClick={() => setPdfOpen(true)}>
                 📖 {t('bookDetail.readOnline')}
+              </button>
+            )}
+            {sampleFile && (
+              <button className="btn btn-ghost" onClick={() => setSampleOpen(true)}>
+                📄 {t('bookDetail.samplePages')}
               </button>
             )}
             {book.pdf_file && book.license_type === 'Public Domain' && (
@@ -298,8 +317,13 @@ export default function BookDetailPage() {
         </div>
       )}
 
-      {/* ── PDF reader ── */}
+      {/* ── PDF reader (full book) ── */}
       {pdfOpen && <PdfReader pdfUrl={assetUrl(book.pdf_file)} onClose={() => setPdfOpen(false)} />}
+
+      {/* ── PDF reader (scanned sample pages, served same-origin from /book-pages/) ── */}
+      {sampleOpen && sampleFile && (
+        <PdfReader pdfUrl={`/book-pages/${sampleFile}`} onClose={() => setSampleOpen(false)} />
+      )}
     </div>
     </ErrorBoundary>
   )
