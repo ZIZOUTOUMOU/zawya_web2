@@ -196,6 +196,9 @@ const translations = {
       timeline3Text: 'أضف هنا الوضع الراهن والمشاريع الجارية.',
       galleryHeading: 'من صور الزاوية',
       galleryAlt: 'صورة {i}',
+      videoHeading: 'جولة في الزاوية',
+      videoDesc: 'شاهد هذا الفيديو للتعرّف أكثر على معالم الزاوية وأنشطتها.',
+      videoUnavailable: 'لا يظهر الفيديو؟ شاهده على فيسبوك',
     },
     quranSchool: {
       heroSubtitle: 'تعليم كتاب الله — القرآن الكريم نور القلوب',
@@ -565,6 +568,9 @@ const translations = {
       timeline3Text: 'Add the current status and ongoing projects.',
       galleryHeading: 'Gallery',
       galleryAlt: 'Image {i}',
+      videoHeading: 'A Tour of the Zawiya',
+      videoDesc: 'Watch this video to discover more of the zawiya’s landmarks and activities.',
+      videoUnavailable: 'Video not showing? Watch it on Facebook',
     },
     quranSchool: {
       heroSubtitle: 'Teaching the Book of God — The Quran, Light of Hearts',

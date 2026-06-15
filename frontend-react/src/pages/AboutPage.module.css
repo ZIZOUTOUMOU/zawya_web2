@@ -1,0 +1,90 @@
+/* About-page extras: photo lightbox + Facebook video embed.
+   Shares the global .lightbox / .lightbox-overlay / .lightbox-close classes. */
+
+/* ─── Intro image (real photo, clickable) ─── */
+.introPhoto {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  cursor: zoom-in;
+  display: block;
+}
+
+/* ─── Lightbox photo viewer ─── */
+.lbContent {
+  padding: var(--space-md);
+  max-width: 92vw;
+}
+
+.lbImage {
+  display: block;
+  max-width: min(88vw, 1100px);
+  max-height: 78vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+}
+
+.lbLabel {
+  text-align: center;
+  margin-top: var(--space-sm);
+  font-family: var(--font-display-arabic);
+  color: var(--color-primary);
+  font-size: 1rem;
+}
+
+.lbNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: var(--text);
+  transition: background var(--transition);
+  z-index: 2;
+}
+.lbNav:hover { background: var(--color-primary); color: #fff; }
+.lbPrev { right: var(--space-md); }   /* RTL: "previous" sits on the right */
+.lbNext { left: var(--space-md); }
+
+/* ─── Facebook video embed ─── */
+.videoWrap {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: #000;
+}
+.videoWrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.videoFallback {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+.videoFallback a { color: var(--color-accent-dark); font-weight: 600; }
+
+@media (max-width: 768px) {
+  .lbNav { width: 38px; height: 38px; }
+}

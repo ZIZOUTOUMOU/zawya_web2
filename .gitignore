@@ -22,6 +22,9 @@ webdev_mcp.py
 # ─── Source catalog files (large binaries) ───────────────────────
 lirbrery_books/
 
+# ─── About-section source photos (optimized copies live in public/about) ─
+photo-for-disc/
+
 # ─── Prompts / working notes ─────────────────────────────────────
 prompts/
 

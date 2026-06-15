@@ -11,7 +11,8 @@
     "seed": "node backend/database/seed.js",
     "seed:catalog": "node backend/database/seed_extracted.js",
     "covers": "node scripts/render-covers.mjs",
-    "pages": "node scripts/render-pages.mjs"
+    "pages": "node scripts/render-pages.mjs",
+    "about": "node scripts/render-about.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",

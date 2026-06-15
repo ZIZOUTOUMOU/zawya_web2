@@ -1,9 +1,35 @@
-import { useT } from '../context/LanguageContext'
+import { useState, useEffect } from 'react'
+import { useT, useLanguage } from '../context/LanguageContext'
 import SectionHero from '../components/ui/SectionHero'
 import styles from './SectionPage.module.css'
+import about from './AboutPage.module.css'
+import photos from '../data/aboutPhotos.json'
+
+// Facebook video shared by the center. The plugin renders the share link;
+// if Facebook ever blocks the short link, swap in the canonical video URL.
+const FB_VIDEO_URL = 'https://www.facebook.com/share/v/14fqvaWg3G9/'
+const FB_EMBED = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(FB_VIDEO_URL)}&show_text=false&allowfullscreen=true`
 
 export default function AboutPage() {
   const t = useT()
+  const { language } = useLanguage()
+  const [lightbox, setLightbox] = useState(null) // index into `photos`, or null
+
+  const caption = (p) => (language === 'ar' ? p.ar : p.en)
+  const intro = photos[0]
+  const gallery = photos.slice(1)
+
+  // ── Keyboard nav while the lightbox is open ──
+  useEffect(() => {
+    if (lightbox === null) return
+    const onKey = (e) => {
+      if (e.key === 'Escape')     setLightbox(null)
+      if (e.key === 'ArrowRight') setLightbox(i => (i + 1) % photos.length)
+      if (e.key === 'ArrowLeft')  setLightbox(i => (i - 1 + photos.length) % photos.length)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightbox === null])
 
   return (
     <div>
@@ -26,12 +52,13 @@ export default function AboutPage() {
             </div>
 
             <div className={styles.introImage}>
-              <div className="img-placeholder" style={{ minHeight: 320 }}>
-                {/* <img src="/images/zawiya-exterior.jpg" alt={t('about.imgCaption')} /> */}
-                <span style={{ fontSize: '3rem' }}>🕌</span>
-                <span>{t('about.imgCaption')}</span>
-                <small style={{ opacity: 0.6 }}>{t('about.imgHint')}</small>
-              </div>
+              <img
+                src={`/about/${intro.file}`}
+                alt={caption(intro)}
+                className={about.introPhoto}
+                loading="lazy"
+                onClick={() => setLightbox(0)}
+              />
             </div>
           </div>
 
@@ -62,21 +89,80 @@ export default function AboutPage() {
             </div>
           </div>
 
+          {/* ── Video tour ── */}
+          <div className="ornament-divider">
+            <span>✦</span>
+          </div>
+          <div className={styles.gallery} style={{ marginTop: 0 }}>
+            <h3 className={styles.galleryTitle} style={{ textAlign: 'center' }}>{t('about.videoHeading')}</h3>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', maxWidth: 560, margin: '0 auto' }}>
+              {t('about.videoDesc')}
+            </p>
+            <div className={about.videoWrap}>
+              <iframe
+                src={FB_EMBED}
+                title={t('about.videoHeading')}
+                scrolling="no"
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+            <p className={about.videoFallback}>
+              <a href={FB_VIDEO_URL} target="_blank" rel="noopener noreferrer">
+                {t('about.videoUnavailable')}
+              </a>
+            </p>
+          </div>
+
+          {/* ── Photo gallery ── */}
           <div className={styles.gallery}>
             <h3 className={styles.galleryTitle}>{t('about.galleryHeading')}</h3>
             <div className={styles.galleryGrid}>
-              {[1,2,3,4,5,6].map(i => (
-                <div key={i} className="img-placeholder" style={{ minHeight: 160 }}>
-                  {/* Replace with: <img src={`/images/gallery-${i}.jpg`} alt={t('about.galleryAlt', { i })} /> */}
-                  <span style={{ fontSize: '1.5rem' }}>🖼️</span>
-                  <span style={{ fontSize: '0.8rem' }}>{t('about.galleryAlt', { i })}</span>
-                </div>
+              {gallery.map((p, j) => (
+                <img
+                  key={p.file}
+                  src={`/about/${p.file}`}
+                  alt={caption(p)}
+                  loading="lazy"
+                  onClick={() => setLightbox(j + 1)}
+                />
               ))}
             </div>
           </div>
 
         </div>
       </section>
+
+      {/* ── Photo lightbox ── */}
+      {lightbox !== null && (
+        <div className="lightbox" onClick={() => setLightbox(null)}>
+          <div className="lightbox-overlay" />
+          <div className={`lightbox-content ${about.lbContent}`} onClick={e => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setLightbox(null)} aria-label="×">×</button>
+
+            <button
+              className={`${about.lbNav} ${about.lbPrev}`}
+              aria-label="prev"
+              onClick={() => setLightbox(i => (i - 1 + photos.length) % photos.length)}
+            >‹</button>
+
+            <img
+              src={`/about/${photos[lightbox].file}`}
+              alt={caption(photos[lightbox])}
+              className={about.lbImage}
+            />
+
+            <button
+              className={`${about.lbNav} ${about.lbNext}`}
+              aria-label="next"
+              onClick={() => setLightbox(i => (i + 1) % photos.length)}
+            >›</button>
+
+            <div className={about.lbLabel}>{caption(photos[lightbox])}</div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
