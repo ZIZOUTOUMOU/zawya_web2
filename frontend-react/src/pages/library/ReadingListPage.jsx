@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getBook, assetUrl } from '../../services/api'
+import { getBook } from '../../services/api'
+import { coverUrl } from '../../utils/cover'
 import { useT } from '../../context/LanguageContext'
 import styles from './ReadingList.module.css'
 import libStyles from './Library.module.css'
@@ -126,7 +127,7 @@ function EmptyState() {
 function ReadingListCard({ book, delay, onRemove }) {
   const t = useT()
   const navigate = useNavigate()
-  const cover = assetUrl(book.cover_image)
+  const cover = coverUrl(book)
   const rating = Math.round(parseFloat(book.rating) || 0)
 
   return (

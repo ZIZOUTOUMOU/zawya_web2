@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getBook, getRelatedBooks, assetUrl } from '../../services/api'
+import { coverUrl } from '../../utils/cover'
 import { useT, useLanguage } from '../../context/LanguageContext'
 import PageLoader from '../../components/ui/PageLoader'
 import ErrorBoundary from '../../components/ErrorBoundary'
@@ -128,7 +129,7 @@ export default function BookDetailPage() {
   // Scanned sample-pages PDF for this book, if one was provided (served from /book-pages/)
   const sampleFile = book.call_number ? samples[book.call_number] : undefined
 
-  const cover      = assetUrl(book.cover_image)
+  const cover      = coverUrl(book)
   const rating     = Math.round(parseFloat(book.rating) || 0)
   const dateLocale = language === 'ar' ? 'ar' : 'en-GB'
   const addedDate  = book.created_at

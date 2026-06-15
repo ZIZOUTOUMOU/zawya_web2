@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getStats, getRecentBooks, assetUrl } from '../services/api'
+import { getStats, getRecentBooks } from '../services/api'
+import { coverUrl } from '../utils/cover'
 import { useT } from '../context/LanguageContext'
 import styles from './HomePage.module.css'
 
@@ -201,7 +202,7 @@ function SectionCard({ icon, title, subtitle, description, linkTo, color, delay 
 }
 
 function BookCard({ book, delay, t }) {
-  const cover = assetUrl(book.cover_image)
+  const cover = coverUrl(book)
 
   return (
     <Link

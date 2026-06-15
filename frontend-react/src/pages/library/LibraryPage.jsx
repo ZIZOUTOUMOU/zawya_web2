@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { getBooks, getCategories, assetUrl, searchBooks, getRandomBook } from '../../services/api'
+import { coverUrl } from '../../utils/cover'
 import { useT } from '../../context/LanguageContext'
 import SectionHero from '../../components/ui/SectionHero'
 import ErrorBoundary from '../../components/ErrorBoundary'
@@ -508,7 +509,7 @@ function SuggestionItem({ suggestion, onSelect }) {
 function BookCard({ book, delay }) {
   const t = useT()
   const navigate = useNavigate()
-  const cover = assetUrl(book.cover_image)
+  const cover = coverUrl(book)
   const rating = Math.round(parseFloat(book.rating) || 0)
 
   return (
@@ -564,7 +565,7 @@ function BookCard({ book, delay }) {
 function BookCardList({ book, delay }) {
   const t = useT()
   const navigate = useNavigate()
-  const cover = assetUrl(book.cover_image)
+  const cover = coverUrl(book)
   const rating = Math.round(parseFloat(book.rating) || 0)
   const desc = book.description
     ? book.description.length > 150
