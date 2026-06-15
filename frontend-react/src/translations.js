@@ -87,6 +87,7 @@ const translations = {
       published: 'النشر',
       closePreview: 'إغلاق المعاينة',
       samplePages: 'معاينة صفحات الكتاب',
+      pageLabel: 'صفحة {n}',
     },
     pdfReader: {
       page: 'صفحة:', loading: 'جارٍ تحميل الكتاب…',
@@ -455,6 +456,7 @@ const translations = {
       published: 'Published',
       closePreview: 'Close preview',
       samplePages: 'Preview book pages',
+      pageLabel: 'Page {n}',
     },
     pdfReader: {
       page: 'Page:', loading: 'Loading book…',

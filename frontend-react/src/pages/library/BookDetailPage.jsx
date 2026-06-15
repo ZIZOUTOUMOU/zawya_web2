@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getBook, getRelatedBooks, assetUrl } from '../../services/api'
 import { coverUrl } from '../../utils/cover'
+import bookPages from '../../data/bookPages.json'
 import { useT, useLanguage } from '../../context/LanguageContext'
 import PageLoader from '../../components/ui/PageLoader'
 import ErrorBoundary from '../../components/ErrorBoundary'
@@ -41,8 +42,6 @@ export default function BookDetailPage() {
   const [inList,       setInList]       = useState(false)
   const [lightbox,     setLightbox]     = useState(null) // { pages, index }
   const [pdfOpen,      setPdfOpen]      = useState(false)
-  const [sampleOpen,   setSampleOpen]   = useState(false)
-  const [samples,      setSamples]      = useState({})   // { "call/number": "file.pdf" }
   const [copied,       setCopied]       = useState(false)
 
   useEffect(() => {
@@ -60,15 +59,6 @@ export default function BookDetailPage() {
       })
       .finally(() => setLoading(false))
   }, [id])
-
-  // Sample-pages manifest (scanned PDFs served from the frontend at /book-pages/).
-  // Keyed by call_number; loaded once. Missing/!ok manifest → no preview button.
-  useEffect(() => {
-    fetch('/book-pages/index.json')
-      .then(r => (r.ok ? r.json() : {}))
-      .then(setSamples)
-      .catch(() => {})
-  }, [])
 
   const toggleList = () => {
     const now = ReadingList.toggle(book.id)
@@ -90,11 +80,18 @@ export default function BookDetailPage() {
     }
   }
 
+  // Rendered scanned pages (cover + first + last + extras) for this book, if any
+  const pageImgs = (book?.call_number && bookPages[book.call_number] ? bookPages[book.call_number] : [])
+    .map((f, i) => ({ url: `/book-pages-img/${f}`, label: t('bookDetail.pageLabel', { n: i + 1 }) }))
+
   const openPreview = (startIndex = 0) => {
     if (!book) return
-    const pages = []
-    if (book.first_page_img) pages.push({ url: assetUrl(book.first_page_img), label: t('bookDetail.firstPage') })
-    if (book.last_page_img)  pages.push({ url: assetUrl(book.last_page_img),  label: t('bookDetail.lastPage') })
+    let pages = pageImgs
+    if (!pages.length) {
+      pages = []
+      if (book.first_page_img) pages.push({ url: assetUrl(book.first_page_img), label: t('bookDetail.firstPage') })
+      if (book.last_page_img)  pages.push({ url: assetUrl(book.last_page_img),  label: t('bookDetail.lastPage') })
+    }
     if (pages.length) setLightbox({ pages, index: startIndex })
   }
 
@@ -125,9 +122,6 @@ export default function BookDetailPage() {
     </div>
   )
   if (!book) return null
-
-  // Scanned sample-pages PDF for this book, if one was provided (served from /book-pages/)
-  const sampleFile = book.call_number ? samples[book.call_number] : undefined
 
   const cover      = coverUrl(book)
   const rating     = Math.round(parseFloat(book.rating) || 0)
@@ -210,7 +204,7 @@ export default function BookDetailPage() {
 
           {/* Action buttons */}
           <div className={styles.actions}>
-            {(book.first_page_img || book.last_page_img) && (
+            {(pageImgs.length > 0 || book.first_page_img || book.last_page_img) && (
               <button className="btn btn-primary" onClick={() => openPreview(0)}>
                 👁 {t('bookDetail.previewBtn')}
               </button>
@@ -218,11 +212,6 @@ export default function BookDetailPage() {
             {book.pdf_file && (
               <button className="btn btn-ghost" onClick={() => setPdfOpen(true)}>
                 📖 {t('bookDetail.readOnline')}
-              </button>
-            )}
-            {sampleFile && (
-              <button className="btn btn-ghost" onClick={() => setSampleOpen(true)}>
-                📄 {t('bookDetail.samplePages')}
               </button>
             )}
             {book.pdf_file && book.license_type === 'Public Domain' && (
@@ -262,20 +251,35 @@ export default function BookDetailPage() {
           {t('bookDetail.previewDesc')}
         </p>
         <div className={styles.previewGrid}>
-          <PreviewCard
-            src={assetUrl(book.first_page_img)}
-            label={t('bookDetail.firstPage')}
-            onClick={() => openPreview(0)}
-            available={!!book.first_page_img}
-            bookTitle={book.title}
-          />
-          <PreviewCard
-            src={assetUrl(book.last_page_img)}
-            label={t('bookDetail.lastPage')}
-            onClick={() => openPreview(book.first_page_img ? 1 : 0)}
-            available={!!book.last_page_img}
-            bookTitle={book.title}
-          />
+          {pageImgs.length > 0 ? (
+            pageImgs.map((p, i) => (
+              <PreviewCard
+                key={p.url}
+                src={p.url}
+                label={p.label}
+                onClick={() => openPreview(i)}
+                available
+                bookTitle={book.title}
+              />
+            ))
+          ) : (
+            <>
+              <PreviewCard
+                src={assetUrl(book.first_page_img)}
+                label={t('bookDetail.firstPage')}
+                onClick={() => openPreview(0)}
+                available={!!book.first_page_img}
+                bookTitle={book.title}
+              />
+              <PreviewCard
+                src={assetUrl(book.last_page_img)}
+                label={t('bookDetail.lastPage')}
+                onClick={() => openPreview(book.first_page_img ? 1 : 0)}
+                available={!!book.last_page_img}
+                bookTitle={book.title}
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -320,11 +324,6 @@ export default function BookDetailPage() {
 
       {/* ── PDF reader (full book) ── */}
       {pdfOpen && <PdfReader pdfUrl={assetUrl(book.pdf_file)} onClose={() => setPdfOpen(false)} />}
-
-      {/* ── PDF reader (scanned sample pages, served same-origin from /book-pages/) ── */}
-      {sampleOpen && sampleFile && (
-        <PdfReader pdfUrl={`/book-pages/${sampleFile}`} onClose={() => setSampleOpen(false)} />
-      )}
     </div>
     </ErrorBoundary>
   )
