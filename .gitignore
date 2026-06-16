@@ -25,6 +25,9 @@ lirbrery_books/
 # ─── About-section source photos (optimized copies live in public/about) ─
 photo-for-disc/
 
+# ─── Book-preview source PDFs (rendered images live in public/book-pages-img) ─
+/book-pages/
+
 # ─── Prompts / working notes ─────────────────────────────────────
 prompts/
 

@@ -1,8 +1,8 @@
 [
   {
     "file": "about-01.jpg",
-    "ar": "قاعة الصلاة",
-    "en": "The prayer hall"
+    "ar": "قاعة الصلاة الكبرى",
+    "en": "The grand prayer hall"
   },
   {
     "file": "about-02.jpg",
@@ -16,46 +16,56 @@
   },
   {
     "file": "about-04.jpg",
+    "ar": "القبة المزخرفة",
+    "en": "The ornamented dome"
+  },
+  {
+    "file": "about-05.jpg",
     "ar": "المحراب والمصحف",
     "en": "The mihrab and the Qur’an"
   },
   {
-    "file": "about-05.jpg",
+    "file": "about-06.jpg",
     "ar": "السقف المزخرف",
     "en": "The ornamented ceiling"
   },
   {
-    "file": "about-06.jpg",
+    "file": "about-07.jpg",
+    "ar": "بهو قاعة الصلاة",
+    "en": "The prayer-hall nave"
+  },
+  {
+    "file": "about-08.jpg",
     "ar": "الأروقة المقوّسة",
     "en": "The vaulted arcades"
   },
   {
-    "file": "about-07.jpg",
+    "file": "about-09.jpg",
     "ar": "واجهة الزاوية",
     "en": "The zawiya’s facade"
   },
   {
-    "file": "about-08.jpg",
+    "file": "about-10.jpg",
     "ar": "المدخل المقوّس",
     "en": "The arched entrance"
   },
   {
-    "file": "about-09.jpg",
+    "file": "about-11.jpg",
     "ar": "منظر من السطح",
     "en": "View from the rooftop"
   },
   {
-    "file": "about-10.jpg",
+    "file": "about-12.jpg",
     "ar": "القبة والنخيل",
     "en": "The dome and the palms"
   },
   {
-    "file": "about-11.jpg",
+    "file": "about-13.jpg",
     "ar": "سطوح قمار العتيقة",
     "en": "Rooftops of old Guemar"
   },
   {
-    "file": "about-12.jpg",
+    "file": "about-14.jpg",
     "ar": "السقف الهرمي",
     "en": "The pyramidal roof"
   }
