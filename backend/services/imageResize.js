@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const Jimp   = require('jimp');
+const { Jimp } = require('jimp');   // Jimp v1: named export, new API
 const path   = require('path');
 const crypto = require('crypto');
 const fs     = require('fs');
@@ -16,8 +16,8 @@ const fs     = require('fs');
  */
 async function resizeCover(src, dest) {
   const img = await Jimp.read(src);
-  img.cover(400, 600).quality(85);
-  await img.writeAsync(dest);
+  img.cover({ w: 400, h: 600 });
+  await img.write(dest, { quality: 85 });
   return dest;
 }
 
@@ -26,19 +26,22 @@ async function resizeCover(src, dest) {
  */
 async function optimizePreview(src, dest) {
   const img = await Jimp.read(src);
-  if (img.bitmap.width > 1200) img.resize(1200, Jimp.AUTO);
+  if (img.bitmap.width > 1200) img.resize({ w: 1200 });
   const ext = path.extname(dest).toLowerCase();
-  if (ext === '.png') img.deflateLevel(9);
-  else img.quality(85);
-  await img.writeAsync(dest);
+  if (ext === '.png') await img.write(dest);
+  else                await img.write(dest, { quality: 85 });
   return dest;
 }
 
 /**
- * Generate a UUID-based filename preserving the extension.
+ * Generate a UUID-based filename with a safe extension.
+ * Accepts either a full original name ("photo.jpg") or a bare
+ * extension ("./.jpg") — callers pass the bare form.
  */
-function uniqueFilename(originalName) {
-  const ext  = path.extname(originalName).toLowerCase();
+function uniqueFilename(nameOrExt) {
+  // path.extname('.jpg') === '' (leading-dot names have no "extension"),
+  // so fall back to the argument itself when it's already a bare extension.
+  const ext  = (path.extname(nameOrExt) || nameOrExt).toLowerCase();
   const safe = ['.jpg', '.jpeg', '.png', '.webp', '.pdf'].includes(ext) ? ext : '.bin';
   return `${crypto.randomUUID()}${safe}`;
 }

@@ -49,13 +49,23 @@ async function auto() {
   }
 
   // ── Admin ────────────────────────────────────────────────────────
-  const adminEmail = process.env.ADMIN_EMAIL    || 'admin@zawiya.com';
-  const adminPass  = process.env.ADMIN_PASSWORD || 'Admin123!';
-  const existing   = await db.prepare(`SELECT id FROM admins WHERE email = ?`).get(adminEmail);
-  if (!existing) {
-    const hash = await bcrypt.hash(adminPass, 12);
-    await db.prepare(`INSERT INTO admins (email, password_hash) VALUES (?, ?)`).run(adminEmail, hash);
-    console.log(`✓ Auto-seed: admin ${adminEmail}`);
+  // SECURITY: never auto-create an admin with a hard-coded password in
+  // production. Require ADMIN_PASSWORD to be set explicitly; otherwise skip
+  // seeding (the public site still works — admin login is intentionally
+  // disabled until a password is provided) instead of creating an account
+  // with a publicly-known default. In development a convenience fallback
+  // is kept so local setup still works out of the box.
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@zawiya.com';
+  const adminPass  = process.env.ADMIN_PASSWORD;
+  if (!adminPass && process.env.NODE_ENV === 'production') {
+    console.warn('[seed] ADMIN_PASSWORD not set — skipping admin auto-seed in production. Set ADMIN_PASSWORD and re-run to create the admin account.');
+  } else {
+    const existing = await db.prepare(`SELECT id FROM admins WHERE email = ?`).get(adminEmail);
+    if (!existing) {
+      const hash = await bcrypt.hash(adminPass || 'Admin123!', 12);
+      await db.prepare(`INSERT INTO admins (email, password_hash) VALUES (?, ?)`).run(adminEmail, hash);
+      console.log(`✓ Auto-seed: admin ${adminEmail}`);
+    }
   }
 
   // ── Events ──────────────────────────────────────────────────────

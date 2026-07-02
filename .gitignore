@@ -28,6 +28,11 @@ photo-for-disc/
 # ─── Book-preview source PDFs (rendered images live in public/book-pages-img) ─
 /book-pages/
 
+# ─── Script caches / debug output (regenerated locally) ─────────────
+scripts/cover_cache.json
+scripts/cover_cache_notfound.json
+scripts/docx_debug.json
+
 # ─── Prompts / working notes ─────────────────────────────────────
 prompts/
 

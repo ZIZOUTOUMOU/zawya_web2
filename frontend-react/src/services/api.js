@@ -122,11 +122,3 @@ export function assetUrl(path) {
   if (/^https?:\/\//i.test(path)) return path;
   return API_ORIGIN + (path.startsWith('/') ? path : '/' + path);
 }
-
-/** Star rating HTML helper */
-export function starsHtml(rating) {
-  const r = Math.round(parseFloat(rating) || 0);
-  return Array.from({ length: 5 }, (_, i) =>
-    i < r ? '★' : '<span class="empty">★</span>'
-  ).join('');
-}
