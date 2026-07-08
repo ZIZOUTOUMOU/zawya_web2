@@ -59,11 +59,7 @@ export default function HomePage() {
 
           <div className={styles.heroArt}>
             <div className={styles.imgPlaceholder}>
-              <div className={styles.placeholderBox}>
-                <span className={styles.placeholderIcon}>🕌</span>
-                <span className={styles.placeholderText}>{t('home.placeholderImg')}</span>
-                <span className={styles.placeholderHint}>{t('home.placeholderHint')}</span>
-              </div>
+              <img src="/zawiya-home.jpg" alt={t('home.heroImgAlt')} className={styles.heroImg} />
             </div>
           </div>
         </div>

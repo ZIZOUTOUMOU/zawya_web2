@@ -101,27 +101,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* portrait photo in a 4:3 frame — favour the buildings over the sky */
+  object-position: center 62%;
+  display: block;
 }
-
-.placeholderBox {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(201,150,60,0.08));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  color: rgba(255,255,255,0.5);
-  border: 2px dashed rgba(201, 150, 60, 0.3);
-  border-radius: var(--radius-xl);
-  padding: 2rem;
-  text-align: center;
-}
-
-.placeholderIcon { font-size: 3rem; opacity: 0.6; }
-.placeholderText { font-size: 1rem; font-weight: 600; }
-.placeholderHint { font-size: 0.8rem; opacity: 0.6; }
 
 /* Wave */
 .wave {
