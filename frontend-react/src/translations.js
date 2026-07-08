@@ -1,6 +1,6 @@
 const translations = {
   ar: {
-    site: { name: 'الزاوية', subtitle: 'المركز الثقافي التعليمي' },
+    site: { name: 'الزاوية', subtitle: 'المركز الثقافي التجاني بقمار' },
     cats: {
       'الأخلاق والتصوف': 'الأخلاق والتصوف',
       'الدوريات العامة': 'الدوريات العامة',
@@ -109,18 +109,18 @@ const translations = {
     },
     footer: {
       brandName: 'الزاوية',
-      brandSubtitle: 'المركز الثقافي والتعليمي',
+      brandSubtitle: 'المركز الثقافي التجاني بقمار',
       tagline: 'مساحة للعلم والثقافة والتراث الإسلامي',
       sections: 'أقسام الموقع',
       contact: 'التواصل',
       address: '📍 قمار، الجزائر',
       sources: 'مصادر المكتبة',
-      copyright: '© {year} الزاوية — المركز الثقافي والتعليمي. جميع الحقوق محفوظة.',
+      copyright: '© {year} الزاوية — المركز الثقافي التجاني بقمار. جميع الحقوق محفوظة.',
       admin: 'لوحة التحكم',
     },
     home: {
       eyebrow: 'مرحباً بكم في',
-      heroAccent: 'المركز الثقافي والتعليمي',
+      heroAccent: 'المركز الثقافي التجاني بقمار',
       heroLede: 'مساحة للعلم والثقافة والتراث الإسلامي — من تحفيظ القرآن الكريم إلى المخطوطات النادرة والأنشطة المجتمعية المتنوعة.',
       ctaAbout: 'تعرّف علينا',
       ctaLibrary: 'المكتبة الرقمية',
@@ -361,7 +361,7 @@ const translations = {
       errRateLimit: 'تم إرسال عدد كبير من الرسائل. حاولوا مجدداً بعد ١٥ دقيقة.',
     },
     hero: {
-      homeTitle: 'الزاوية', homeSubtitle: 'المركز الثقافي التعليمي',
+      homeTitle: 'الزاوية', homeSubtitle: 'المركز الثقافي التجاني بقمار',
       aboutTitle: 'التعريف بالزاوية', aboutSubtitle: 'تعرف على الزاوية',
       quranTitle: 'المدرسة القرآنية', quranSubtitle: 'تعليم القرآن الكريم',
       mssTitle: 'المخطوطات', mssSubtitle: 'المخطوطات النادرة',
@@ -372,7 +372,7 @@ const translations = {
     },
   },
   en: {
-    site: { name: 'Al-Zawiya', subtitle: 'Cultural and Educational Center' },
+    site: { name: 'Al-Zawiya', subtitle: 'The Tijani Cultural Center in Guemar' },
     cats: {
       'الأخلاق والتصوف': 'Ethics & Sufism',
       'الدوريات العامة': 'General Periodicals',
@@ -481,18 +481,18 @@ const translations = {
     },
     footer: {
       brandName: 'Al-Zawiya',
-      brandSubtitle: 'Cultural and Educational Center',
+      brandSubtitle: 'The Tijani Cultural Center in Guemar',
       tagline: 'A space for knowledge, culture, and Islamic heritage',
       sections: 'Site Sections',
       contact: 'Contact',
       address: '📍 Guemar, Algeria',
       sources: 'Library Resources',
-      copyright: '© {year} Al-Zawiya — Cultural and Educational Center. All rights reserved.',
+      copyright: '© {year} Al-Zawiya — The Tijani Cultural Center in Guemar. All rights reserved.',
       admin: 'Admin Panel',
     },
     home: {
       eyebrow: 'Welcome to',
-      heroAccent: 'Cultural and Educational Center',
+      heroAccent: 'The Tijani Cultural Center in Guemar',
       heroLede: 'A space for knowledge, culture, and Islamic heritage — from Quran memorization to rare manuscripts and diverse community activities.',
       ctaAbout: 'Learn About Us',
       ctaLibrary: 'Digital Library',
@@ -733,7 +733,7 @@ const translations = {
       errRateLimit: 'Too many messages sent. Try again in 15 minutes.',
     },
     hero: {
-      homeTitle: 'Al-Zawiya', homeSubtitle: 'Cultural and Educational Center',
+      homeTitle: 'Al-Zawiya', homeSubtitle: 'The Tijani Cultural Center in Guemar',
       aboutTitle: 'About', aboutSubtitle: 'About the Center',
       quranTitle: 'Quran School', quranSubtitle: 'Quranic Education',
       mssTitle: 'Manuscripts', mssSubtitle: 'Rare Manuscripts',

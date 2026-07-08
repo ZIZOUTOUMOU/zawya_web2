@@ -1,4 +1,4 @@
-# 🕌 الزاوية — المركز الثقافي والتعليمي
+# 🕌 الزاوية — المركز الثقافي التجاني بقمار
 **Zawiya Digital Center** — Full-stack web platform
 
 React frontend + Node.js/Express backend + SQLite database.
